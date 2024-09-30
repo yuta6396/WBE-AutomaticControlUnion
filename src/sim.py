@@ -60,7 +60,7 @@ def sim(input):
         dat[:, 0, gy1:gy2, gx1:gx2] = nc[varname][:]
         odat[:, 0, gy1:gy2, gx1:gx2] = onc[varname][:]
 
-    result = 0
+    result = 1000
     for i in range(40):
         sum_co[i]+=dat[1,0,i,0]*3600
         sum_no[i]+=odat[1,0,i,0]*3600
