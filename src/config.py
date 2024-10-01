@@ -10,8 +10,8 @@ trial_num = 10
 bounds = [Real(-max_input, max_input, name=f'{input_var}_Y{i+20}') for i in range(num_input_grid)]
 
 # BO Parameters
-max_iter_vec = [200, 300]
-initial_design_numdata_vec = [10, 30]
+initial_design_numdata_vec = [3]
+max_iter_vec = [10, 30]
 
 # PSO_LDWIM Parameters
 w_max = 0.9

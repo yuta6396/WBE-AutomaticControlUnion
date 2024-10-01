@@ -1,9 +1,12 @@
 # src/main.py
+# 標準ライブラリ
 import os
 import time
 import numpy as np
-from simlation import sim
+from datetime import datetime
 
+# srcよりimport
+from simlation import sim
 from analysis import print_result, save_plots
 from config import (Opt_vec, bounds, input_var, max_iter_vec, num_input_grid,
                     trial_num)
@@ -11,13 +14,18 @@ from optimization import bayesian_optimization, random_search
 
 
 def main():
-    # 結果を格納するための配列やメトリクスの初期化
+    current_time = datetime.now().strftime("%m-%d %H:%M")
+    # ログファイルを開く ユーザーネーム変更！
+    log_dir = "/home/yuta/scale-5.5.1/scale-rm/test/tutorial/ideal/WarmBubbleExperiment/WBE-AutomaticControlUnion/logs"
+    log_file_path = os.path.join(log_dir, f"{current_time}.txt")
+
+    # 累積降水量減少(%)を格納するための配列の初期化
     BO_ratio_matrix = np.zeros((len(max_iter_vec), trial_num))
+    PSO_ratio_matrix = np.zeros((len(max_iter_vec), trial_num))
     RS_ratio_matrix = np.zeros((len(max_iter_vec), trial_num))
-    # ログファイルを開く
-    log_dir = "logs"
-    os.makedirs(log_dir, exist_ok=True)
-    log_file_path = os.path.join(log_dir, "experiment_log.txt")
+    GA_ratio_matrix = np.zeros((len(max_iter_vec), trial_num))
+
+
     with open(log_file_path, 'a') as f:
         for trial_i in range(trial_num):
             for exp_i in range(len(max_iter_vec)):
@@ -33,6 +41,7 @@ def main():
 
                 # 結果の保存と可視化
                 save_plots(BO_ratio_matrix, RS_ratio_matrix, trial_i, exp_i)
+
 
 if __name__ == "__main__":
     main()

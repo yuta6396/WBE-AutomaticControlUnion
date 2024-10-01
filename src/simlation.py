@@ -63,24 +63,28 @@ def process_history_files():
         nc = netCDF4.Dataset(history_file.replace('######', str(pe).zfill(6)))
         onc = netCDF4.Dataset(org_file.replace('######', str(pe).zfill(6)))
         for i in range(40):
-            sum_co[i] += nc['PREC'][1, 0, i, 0] * 3600
+            sum_co[i] += nc['PREC'][1, 0, i, 0] * 3600 # (time,z,y,x)
             sum_no[i] += onc['PREC'][1, 0, i, 0] * 3600
     return sum_co, sum_no
 
 
 def black_box_function(input):
     """
-    ベイズ最適化やランダムサーチで使用されるコスト関数。
-    シミュレーションを実行し、その結果を評価。
+    最適化問題の目的関数。
+    制御入力を加えた初期値からシミュレーションを行い、その結果を評価。
     """
     sum_co, sum_no = sim(input)
     
-    result = 0
+    represent_prec = 0
     if Opt_purpose == "MinSum" or Opt_purpose == "MaxSum":
-        result = np.sum(sum_co)
-    elif Opt_purpose == "L1":
-        result = np.sum(np.abs(input)) + 50 * np.sum(sum_co)
-    elif Opt_purpose == "L2":
-        result = np.sum(input ** 2) + 50 * np.sum(sum_co)
-    
-    return result
+        represent_prec = np.sum(sum_co)
+
+    elif Opt_purpose == "MinMax" or Opt_purpose == "MaxMax":
+        represent_prec = 0
+        for j in range(40):  
+            if sum_co[j] > represent_prec:
+                represent_prec = sum_co[j] # 最大の累積降水量地点
+
+    if Opt_purpose == "MaxSum" or Opt_purpose == "MaxMax":
+        represent_prec = -represent_prec # 目的関数の最小化問題に統一   
+    return represent_prec
