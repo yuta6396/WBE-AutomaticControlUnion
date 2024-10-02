@@ -1,14 +1,36 @@
 import os
 from skopt.space import Real
+from zoneinfo import ZoneInfo
+
 # simulation setting
+target_var = "PREC"
 input_var = "MOMY"
 max_input = 30
 num_input_grid = 3
 Opt_vec = ["BO", "RS"]
 Opt_purpose = "MinSum"
-trial_num = 10
+trial_num = 2
 bounds = [Real(-max_input, max_input, name=f'{input_var}_Y{i+20}') for i in range(num_input_grid)]
 
+# drawing parameters
+LinePlots_RespectiveValue_vec = ["Ave", "Median", "Max", "Min"]
+fontsize = 18
+linewidth = 2
+linewidth_box = 1
+markersize = 8
+colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52']
+dpi = 300 #画質設定
+
+# save directry
+# top_dir_pathを ユーザーネーム変更！
+top_dir_path = "/home/yuta/scale-5.5.1/scale-rm/test/tutorial/ideal/WarmBubbleExperiment/WBE-AutomaticControlUnion"
+log_dir_path = f"{top_dir_path}/logs"
+fig_dir_path = f"{top_dir_path}/results/plots"
+summary_dir_path = f"{top_dir_path}/results/summaries"
+# 日本時間のタイムゾーンを設定
+jst = ZoneInfo("Asia/Tokyo")
+
+## Black box Optimization Parameters
 # BO Parameters
 initial_design_numdata_vec = [3]
 max_iter_vec = [10, 30]
@@ -29,7 +51,7 @@ alpha = 0.5  # BLX-alpha parameter
 tournament_size = 3 #選択数なので population以下にする必要あり
 
 
-# SCALE-RM param
+# SCALE-RM parameters
 nofpe = 2
 fny = 2
 fnx = 1

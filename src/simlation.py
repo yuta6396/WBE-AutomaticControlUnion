@@ -5,8 +5,8 @@ import subprocess
 import netCDF4
 import numpy as np
 
-from config import (fnx, fny, history_file, init_file, input_var, nofpe,
-                    org_file)
+from config import (fnx, fny, history_file, init_file, target_var, input_var, 
+                    nofpe, org_file)
 
 
 def sim(input):
@@ -63,8 +63,8 @@ def process_history_files():
         nc = netCDF4.Dataset(history_file.replace('######', str(pe).zfill(6)))
         onc = netCDF4.Dataset(org_file.replace('######', str(pe).zfill(6)))
         for i in range(40):
-            sum_co[i] += nc['PREC'][1, 0, i, 0] * 3600 # (time,z,y,x)
-            sum_no[i] += onc['PREC'][1, 0, i, 0] * 3600
+            sum_co[i] += nc[target_var][1, 0, i, 0] * 3600 # (time,z,y,x)
+            sum_no[i] += onc[target_var][1, 0, i, 0] * 3600
     return sum_co, sum_no
 
 
