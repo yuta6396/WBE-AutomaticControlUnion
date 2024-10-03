@@ -3,8 +3,10 @@ import os
 import subprocess
 import netCDF4
 import numpy as np
+from dataclasses import dataclass, field
+from zoneinfo import ZoneInfo
 
-from config import Control, SCALE
+from config import control_instance, scale_instance, save_instance
 
 
 def sim(input):
@@ -14,7 +16,7 @@ def sim(input):
     sum_co = np.zeros(40)
     sum_no = np.zeros(40)
     
-    for pe in range(nofpe):
+    for pe in range(scale_instance.nofpe):
         initialize_nc_file(pe, input)
     run_simulation()
 
@@ -25,9 +27,13 @@ def initialize_nc_file(pe, input):
     """
     netCDFファイルの初期化と変更
     """
+    input_var = control_instance.input_var
+    init_file = scale_instance.init_file
+    org_file = scale_instance.org_file
+
     init = init_file.replace('######', str(pe).zfill(6))
     org = org_file.replace('######', str(pe).zfill(6))
-    output = f"out-{input_var}.pe######.nc".replace('######', str(pe).zfill(6))
+    output = f"out-{save_instance.current_time}.pe######.nc".replace('######', str(pe).zfill(6))
 
     subprocess.run(["cp", org, init])  # 初期化
     with netCDF4.Dataset(init) as src, netCDF4.Dataset(output, "w") as dst:
@@ -39,7 +45,9 @@ def initialize_nc_file(pe, input):
             dst[name].setncatts(variable.__dict__)
             if name == input_var:
                 var = src[name][:]
-                var[0:input.size, 0, 0] += input  # 入力に基づき変更
+                if pe == 1:  # ここで制御グリッド変えられる
+                    for Ygrid_i in range(control_instance.num_input_grid):                        
+                        var[Ygrid_i, 0, 0] += input[Ygrid_i]  # (y,x,z)
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]
@@ -48,16 +56,20 @@ def run_simulation():
     """
     シミュレーションを実行する関数
     """
-    subprocess.run(["mpirun", "-n", "2", "./scale-rm", "run_R20kmDX500m.conf"])
+    subprocess.run(["mpirun", "-n", "2", "../scale-rm", f"{save_instance.init_dir_path}/run_R20kmDX500m.conf"])
 
 def process_history_files():
     """
     シミュレーション後のhistoryファイルを処理
     """
+    history_file = scale_instance.history_file
+    org_file = scale_instance.org_file
+    target_var = control_instance.target_var
+
     sum_co = np.zeros(40)
     sum_no = np.zeros(40)
     
-    for pe in range(nofpe):
+    for pe in range(scale_instance.nofpe):
         nc = netCDF4.Dataset(history_file.replace('######', str(pe).zfill(6)))
         onc = netCDF4.Dataset(org_file.replace('######', str(pe).zfill(6)))
         for i in range(40):
@@ -71,6 +83,7 @@ def black_box_function(input):
     最適化問題の目的関数。
     制御入力を加えた初期値からシミュレーションを行い、その結果を評価。
     """
+    Opt_purpose = control_instance.Opt_purpose
     sum_co, sum_no = sim(input)
     
     represent_prec = 0

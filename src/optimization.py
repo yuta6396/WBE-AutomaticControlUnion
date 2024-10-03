@@ -4,10 +4,11 @@ import time
 import random
 from skopt import gp_minimize
 from skopt.space import Real
-
+from dataclasses import dataclass, field
+from zoneinfo import ZoneInfo
 
 from simlation import black_box_function
-from config import Control, BlackBoxOptomize
+from config import control_instance, blackboxoptimize_instance
 
 
 # src/optimization.py に追加
@@ -24,9 +25,10 @@ def bayesian_optimization(trial_i, exp_i, x0=None, y0=None):
     start_time = time.time()
     result = gp_minimize(
         func=black_box_function,
-        dimensions=bounds,
+        dimensions=control_instance.bounds,
         acq_func="EI",
-        n_calls=max_iter_vec[exp_i],
+        n_calls=blackboxoptimize_instance.max_iter_vec[exp_i],
+        n_initial_points=blackboxoptimize_instance.initial_design_numdata_vec[exp_i],
         x0=x0,  # 途中状態を引き継ぐ
         y0=y0,
         random_state=trial_i
@@ -40,7 +42,7 @@ def random_search(trial_i, exp_i, previous_best=None):
     ランダムサーチを行い、最適化された入力と経過時間を返す
     """
     random_reset(trial_i)
-    np.random.rand(int(cnt_base*num_input_grid))
+    #np.random.rand(int(cnt_base*num_input_grid))
     start_time = time.time()
     if previous_best is None:
         best_score = float('inf')
@@ -48,7 +50,7 @@ def random_search(trial_i, exp_i, previous_best=None):
     else:
         best_params, best_score = previous_best
     for _ in range(max_iter_vec[exp_i]):
-        candidate = [np.random.uniform(b[0], b[1]) for b in bounds]
+        candidate = [np.random.uniform(b[0], b[1]) for b in control_instance.bounds]
         score = black_box_function(candidate)
         if score < best_score:
             best_score = score

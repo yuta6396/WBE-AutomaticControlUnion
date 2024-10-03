@@ -4,8 +4,10 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+from dataclasses import dataclass, field
+from zoneinfo import ZoneInfo
 
-from config import Control, BlackBoxOptomize, Draw
+from config import control_instance, blackboxoptimize_instance, draw_instance
 
 
 
@@ -50,16 +52,20 @@ def save_box_plots(BO_ratio_matrix, RS_ratio_matrix, trial_i, exp_i, data_str, c
     シミュレーション結果を比較した箱ひげ図を保存
     結果：累積降水量・必要時間
     """
+    max_iter_vec = blackboxoptimize_instance.max_iter_vec
+    Opt_vec = control_instance.Opt_vec
+    fontsize = draw_instance.fontsize
+
     for exp_i in range(len(max_iter_vec)):
         data = [BO_ratio_matrix[exp_i, :], RS_ratio_matrix[exp_i, :]]
 
         fig, ax = plt.subplots(figsize=(8,6))
-        box = ax.boxplot(data, patch_artist=True,medianprops=dict(color='black', linewidth=linewidth_box))
-        for patch, color in zip(box['boxes'], colors6):
+        box = ax.boxplot(data, patch_artist=True,medianprops=dict(color='black', linewidth=draw_instance.linewidth_box))
+        for patch, color in zip(box['boxes'], draw_instance.colors6):
             patch.set_facecolor(color)
         
         # カテゴリラベルの設定
-        plt.xticks(ticks=range(1, len(Opt_vec) + 1), labels=Opt_vec, fontsize=fs-2)
+        plt.xticks(ticks=range(1, len(Opt_vec) + 1), labels=Opt_vec, fontsize=fontsize-2)
         plt.yticks(fontsize=fs-2) ##このマジックナンバー何とかしたい
         # 箱ひげ図の描画
         plt.title(f'Func evaluation times = {max_iter_vec[exp_i]}')
@@ -73,7 +79,7 @@ def save_box_plots(BO_ratio_matrix, RS_ratio_matrix, trial_i, exp_i, data_str, c
 
         plt.grid(True)
         plt.tight_layout()
-        plt.savefig(fig_dir_path, f"Boxplot_{data_str}_FET={max_iter_vec[exp_i]}_{current_time}.png", dpi = dpi)
+        plt.savefig(save_instance.fig_dir_path, f"Boxplot_{data_str}_FET={max_iter_vec[exp_i]}_{current_time}.png", dpi = dpi)
         plt.close()
 
 
@@ -83,10 +89,17 @@ def save_line_plots(BO_ratio_matrix, RS_ratio_matrix, f, trial_i, exp_i, current
     シミュレーション結果を比較した折れ線グラフを保存
     比較対象: 累積降水量のAve, Median, Max, Min    
     """
+    LinePlots_vec = draw_instance.LinePlots_RespectiveValue_vec
+    trial_num = control_instance.trial_num
+    max_iter_vec = blackboxoptimize_instance.max_iter_vec
+    fontsize = draw_instance.fontsize
+    lw = draw_instance.linewidth
+    ms = draw_instance.markersize
+
     BO_vec = np.zeros(len(max_iter_vec)) 
     RS_vec = np.zeros(len(max_iter_vec)) 
 
-    for Respect_i in range(LinePlots_RespectiveValue_vec):
+    for Respect_i in range(LinePlots_vec):
         # データ処理
         if Respect_i == "Ave":
             for exp_i in range(len(max_iter_vec)):
@@ -136,13 +149,13 @@ def save_line_plots(BO_ratio_matrix, RS_ratio_matrix, f, trial_i, exp_i, current
         plt.title(f'{Respect_i} Value of Trial = {trial_num}')
         plt.xlabel('Function evaluation times', fontsize=fontsize+2)
         plt.ylabel('Accumulated precipitation (%)', fontsize=fontsize+2)
-        plt.xticks(cnt_vec, fontsize=fontsize)
+        plt.xticks(blackboxoptimize_instance.max_iter_vec, fontsize=fontsize)
         plt.yticks(fontsize=fontsize)
 
         # 調整して保存
         plt.tight_layout()
         plt.legend(fontsize=fontsize)
         plt.grid(True)
-        plt.savefig(fig_dir_path,f"LinePlot_{Respect_i}_Value_{current_time}.png", dpi = dpi)
+        plt.savefig(save_instance.fig_dir_path,f"LinePlot_{Respect_i}_Value_{current_time}.png", dpi = draw_instance.dpi)
         plt.close()
 

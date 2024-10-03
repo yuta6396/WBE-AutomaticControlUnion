@@ -1,74 +1,111 @@
 import os
 from skopt.space import Real
+from dataclasses import dataclass, field
 from zoneinfo import ZoneInfo
+from datetime import datetime
 
 # simulation setting
+@dataclass
 class Control:
-    target_var = "PREC"
-    input_var = "MOMY"
-    max_input = 30
-    num_input_grid = 3
-    Opt_vec = ["BO", "RS"]
-    Opt_purpose = "MinSum"
-    trial_num = 2
+    target_var: str = "PREC"
+    input_var: str = "MOMY"
+    max_input: int = 30
+    num_input_grid: int = 3
+    Opt_vec: list = field(default_factory=lambda: ["BO", "RS"])
+    Opt_purpose: str = "MinSum"
+    trial_num: int = 2
+    bounds: list = field(init=False)
 
-    bounds = []
-    for i in range(num_input_grid):
-        bounds.append(Real(-max_input, max_input, name=f'{input_var}_Y{i+20}'))
+    def __post_init__(self):
+        self.bounds = [Real(-self.max_input, self.max_input, name=f'{self.input_var}_Y{i+20}')
+                       for i in range(self.num_input_grid)]
 
-
+control_instance = Control()
 # drawing parameters
+@dataclass
 class Draw:
-    LinePlots_RespectiveValue_vec = ["Ave", "Median", "Max", "Min"]
-    fontsize = 18
-    linewidth = 2
-    linewidth_box = 1
-    markersize = 8
-    colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52']
-    dpi = 300 #画質設定
+    LinePlots_RespectiveValue_vec: list = field(default_factory=lambda: ["Ave", "Median", "Max", "Min"])
+    fontsize: int = 18
+    linewidth: int = 2
+    linewidth_box: int = 1
+    markersize: int = 8
+    colors6: list = field(default_factory=lambda: ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'])
+    dpi: int = 300  # 画質設定
+
+draw_instance = Draw()
 
 # save directry
 # top_dir_pathを ユーザーネーム変更！
+@dataclass
 class Save:
-    top_dir_path = "/home/yuta/scale-5.5.1/scale-rm/test/tutorial/ideal/WarmBubbleExperiment/WBE-AutomaticControlUnion"
-    log_dir_path = f"{top_dir_path}/logs"
-    fig_dir_path = f"{top_dir_path}/results/plots"
-    summary_dir_path = f"{top_dir_path}/results/summaries"
-    # 日本時間のタイムゾーンを設定
-    jst = ZoneInfo("Asia/Tokyo")
+    top_dir_path: str = "/home/yuta/scale-5.5.1/scale-rm/test/tutorial/ideal/WarmBubbleExperiment/WBE-AutomaticControlUnion"
+    log_dir_path: str = field(init=False)
+    fig_dir_path: str = field(init=False)
+    summary_dir_path: str = field(init=False)
+    init_dir_path: str = field(init=False)
+    output_dir_path: str = field(init=False)
+    current_time: str = field(init=False)
+    jst: ZoneInfo = field(default_factory=lambda: ZoneInfo("Asia/Tokyo"))  # 日本時間のタイムゾーンを設定
+
+    def __post_init__(self):
+        self.current_time = datetime.now(self.jst).strftime("%m-%d-%H:%M")
+        self.log_dir_path = f"{self.top_dir_path}/logs"
+        self.fig_dir_path = f"{self.top_dir_path}/results/plots"
+        self.summary_dir_path = f"{self.top_dir_path}/results/summaries"
+        self.init_dir_path = f"{self.top_dir_path}/data/input_files"
+        self.output_dir_path = f"{self.top_dir_path}/data/input_files"
+
+save_instance = Save()
 
 ## Black box Optimization Parameters
-class BlackBoxOptomize:
+@dataclass
+class BlackBoxOptimize:
+    control: Control = field(default_factory=Control, repr=False, compare=False)
     # BO Parameters
-    initial_design_numdata_vec = [3]
-    max_iter_vec = [10, 20]
+    initial_design_numdata_vec: list = field(default_factory=lambda: [3])
+    max_iter_vec: list = field(default_factory=lambda: [10, 20])
 
     # PSO_LDWIM Parameters
-    w_max = 0.9
-    w_min = 0.4
-    c1 = 2.0
-    c2 = 2.0
+    w_max: float = 0.9
+    w_min: float = 0.4
+    c1: float = 2.0
+    c2: float = 2.0
 
     # GA Parameters
-    gene_length = num_input_grid  # Number of genes per individual 制御入力grid数
-    crossover_rate = 0.8  # Crossover rate
-    mutation_rate = 0.05  # Mutation rate
-    lower_bound = -max_input  # Lower bound of gene values
-    upper_bound = max_input  # Upper bound of gene values
-    alpha = 0.5  # BLX-alpha parameter
-    tournament_size = 3 #選択数なので population以下にする必要あり
+    gene_length: int = field(init=False)  # Number of genes per individual 制御入力grid数
+    crossover_rate: float = 0.8  
+    mutation_rate: float = 0.05  
+    lower_bound: float = field(init=False)  # Lower bound of gene values
+    upper_bound: float = field(init=False)  # Upper bound of gene values
+    alpha: float = 0.5  # BLX-alpha parameter
+    tournament_size: int = 3  # 選択数なので population以下にする必要あり
 
+    def __post_init__(self):
+        # Control クラスの属性を使用して初期化
+        self.gene_length = self.control.num_input_grid
+        self.lower_bound = -self.control.max_input
+        self.upper_bound = self.control.max_input
+
+blackboxoptimize_instance = BlackBoxOptimize()
 
 # SCALE-RM parameters
-class SCALE
-    nofpe = 2
-    fny = 2
-    fnx = 1
-    run_time = 20
-    init_file = "init_00000101-000000.000.pe######.nc"
-    org_file = "init_00000101-000000.000.pe######.org.nc"
-    history_file = "history.pe######.nc"
+@dataclass
+class SCALE:
+    save: Save = field(default_factory=Save, repr=False, compare=False)
+    nofpe: int = 2
+    fny: int = 2
+    fnx: int = 1
+    run_time: int = 20
+    init_file: str = field(init=False)
+    org_file: str = field(init=False)
+    history_file: str = field(init=False)
 
-    orgfile = 'no-control.pe######.nc'
-    file_path = os.path.dirname(os.path.abspath(__file__))
-    gpyoptfile=f"gpyopt.pe######.nc"
+    orgfile: str = 'no-control.pe######.nc'
+    gpyoptfile: str = "gpyopt.pe######.nc"
+
+    def __post_init__(self):
+        self.init_file = f"{self.save.init_dir_path}/init_00000101-000000.000.pe######.nc"
+        self.org_file = f"{self.save.init_dir_path}/init_00000101-000000.000.pe######.org.nc"
+        self.history_file = f"{self.save.output_dir_path}/history.pe######.nc"
+
+scale_instance = SCALE()
