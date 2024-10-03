@@ -53,7 +53,7 @@ class Save:
         self.fig_dir_path = f"{self.top_dir_path}/results/plots"
         self.summary_dir_path = f"{self.top_dir_path}/results/summaries"
         self.init_dir_path = f"{self.top_dir_path}/data/input_files"
-        self.output_dir_path = f"{self.top_dir_path}/data/input_files"
+        self.output_dir_path = f"{self.top_dir_path}/data/output_files"
 
 save_instance = Save()
 

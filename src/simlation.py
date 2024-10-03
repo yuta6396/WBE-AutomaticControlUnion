@@ -33,7 +33,7 @@ def initialize_nc_file(pe, input):
 
     init = init_file.replace('######', str(pe).zfill(6))
     org = org_file.replace('######', str(pe).zfill(6))
-    output = f"out-{save_instance.current_time}.pe######.nc".replace('######', str(pe).zfill(6))
+    output = f"{save_instance.output_dir_path}/out-{save_instance.current_time}.pe######.nc".replace('######', str(pe).zfill(6))
 
     subprocess.run(["cp", org, init])  # 初期化
     with netCDF4.Dataset(init) as src, netCDF4.Dataset(output, "w") as dst:

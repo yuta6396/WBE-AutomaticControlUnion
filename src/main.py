@@ -15,8 +15,8 @@ from optimization import bayesian_optimization, random_search
 
 def main():
     current_time = save_instance.current_time
-    log_file = os.path.join(save_instance.log_dir_path, f"{current_time}.txt")
-    summary_file = os.path.join(save_instance.summary_dir_path, f"{current_time}.txt")
+    log_file = os.path.join(save_instance.log_dir_path, f"log-{current_time}.txt")
+    summary_file = os.path.join(save_instance.summary_dir_path, f"summary-{current_time}.txt")
 
     # 累積降水量減少(%)を格納する配列の初期化
     max_iter_vec_len = len(blackboxoptimize_instance.max_iter_vec)
