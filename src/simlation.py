@@ -1,12 +1,10 @@
 # src/simulation.py
 import os
 import subprocess
-
 import netCDF4
 import numpy as np
 
-from config import (fnx, fny, history_file, init_file, target_var, input_var, 
-                    nofpe, org_file)
+from config import Control, SCALE
 
 
 def sim(input):

@@ -1,9 +1,11 @@
 # src/analysis.py
 import os
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
-from config import max_iter_vec, Opt_vec, LinePlots_RespectiveValue_vec, fontsize, linewidth, linewidth_box,  markersize, colors6, dpi
+from config import Control, BlackBoxOptomize, Draw
 
 
 
@@ -38,6 +40,7 @@ def print_result(sum_co, sum_no, f, trial_i, exp_i):
     print(f"Sum of Precipitation Before Control: {total_sum_no}")
     print(f"Sum of Precipitation After Control: {total_sum_co}")
     print(f"Reduction ratio (after/before control): {reduction_ratio:.3f}%")
+    return reduction_ratio
 
 
 

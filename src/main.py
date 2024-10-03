@@ -7,9 +7,8 @@ from datetime import datetime
 
 # srcよりimport
 from simlation import sim
-from analysis import print_result, save_plots
-from config import (Opt_vec, bounds, input_var, max_iter_vec, num_input_grid,
-                    trial_num)
+from analysis import print_result, save_box_plots, save_line_plots
+from config import Control, Save
 from optimization import bayesian_optimization, random_search
 
 
@@ -32,16 +31,22 @@ def main():
 
     with open(log_file, 'a') as f_log, open(summary_file, 'a') as f_summary:
         for trial_i in range(trial_num):
+            cnt_base = 0
+            initial_x_iters, initial_y_iters = None, None
             for exp_i in range(len(max_iter_vec)):
+                if exp_i > 0:
+                    cnt_base  = cnt_vec[exp_i - 1]
                 # ベイズ最適化
-                min_input, time_diff, initial_x_iters, initial_y_iters = bayesian_optimization(trial_i, exp_i)
+                min_input, time_diff, initial_x_iters, initial_y_iters = bayesian_optimization(trial_i, exp_i, initial_x_iters, initial_y_iters)
                 sum_co, sum_no = sim(min_input)
-                print_result(sum_co, sum_no, f_log, trial_i, exp_i)
+                BO_ratio_matrix[exp_i, trial_i] = print_result(sum_co, sum_no, f_log, trial_i, exp_i)
+                BO_time_matrix[exp_i, trial_i] = time_diff
 
                 # ランダムサーチ
-                min_input, time_diff = random_search(trial_i, exp_i)
-                sum_co, sum_no = sim(min_input)
-                print_result(sum_co, sum_no, f_log, trial_i, exp_i)
+                best_params, best_score, time_diff = random_search(trial_i, exp_i, previous_best=(best_params, best_score))
+                sum_co, sum_no = sim(best_params)
+                RS_ratio_matrix[exp_i, trial_i] = print_result(sum_co, sum_no, f_log, trial_i, exp_i)
+                RS_time_matrix[exp_i, trial_i] = time_diff
 
                 # 結果の保存と可視化
                 save_box_plots(BO_ratio_matrix, RS_ratio_matrix, trial_i, exp_i, "PREC", current_time)

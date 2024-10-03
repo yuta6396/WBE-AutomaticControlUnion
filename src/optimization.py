@@ -1,19 +1,26 @@
 # src/optimization.py
 import numpy as np
 import time
+import random
 from skopt import gp_minimize
 from skopt.space import Real
 
 
 from simlation import black_box_function
-from config import bounds, initial_design_numdata_vec, max_iter_vec
+from config import Control, BlackBoxOptomize
 
 
 # src/optimization.py に追加
+
+def random_reset(trial_i):
+    np.random.seed(trial_i) #乱数を再現可能にし, seedによる影響を平等にする
+    random.seed(trial_i)     # ランダムモジュールのシードも設定
+
 def bayesian_optimization(trial_i, exp_i, x0=None, y0=None):
     """
     ベイズ最適化を行い、途中状態を保持して次の最適化に引き継ぐ
     """
+    random_reset(trial_i)
     start_time = time.time()
     result = gp_minimize(
         func=black_box_function,
@@ -28,27 +35,27 @@ def bayesian_optimization(trial_i, exp_i, x0=None, y0=None):
     return result.x, end_time - start_time, result.x_iters, result.func_vals
 
 
-def random_search(trial_i, exp_i):
+def random_search(trial_i, exp_i, previous_best=None):
     """
     ランダムサーチを行い、最適化された入力と経過時間を返す
     """
+    random_reset(trial_i)
+    np.random.rand(int(cnt_base*num_input_grid))
     start_time = time.time()
-    best_params, best_score = random_search_algorithm(black_box_function, bounds, max_iter_vec[exp_i])
-    end_time = time.time()
-    return best_params, end_time - start_time
-
-
-
-def random_search_algorithm(objective_function, bounds, n_iterations):
-    best_score = float('inf')
-    best_params = None
-    for _ in range(n_iterations):
+    if previous_best is None:
+        best_score = float('inf')
+        best_params = None
+    else:
+        best_params, best_score = previous_best
+    for _ in range(max_iter_vec[exp_i]):
         candidate = [np.random.uniform(b[0], b[1]) for b in bounds]
-        score = objective_function(candidate)
+        score = black_box_function(candidate)
         if score < best_score:
             best_score = score
             best_params = candidate
-    return best_params, best_score
+    end_time = time.time()
+    return best_params, best_score, end_time - start_time
+
 
 
 ###PSO アルゴリズム
