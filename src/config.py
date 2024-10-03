@@ -46,6 +46,11 @@ class Save:
     output_dir_path: str = field(init=False)
     current_time: str = field(init=False)
     jst: ZoneInfo = field(default_factory=lambda: ZoneInfo("Asia/Tokyo"))  # 日本時間のタイムゾーンを設定
+    init_file: str = 'init_file_######.nc'
+    org_file: str = 'org_file_######.nc'
+    history_file: str = 'history_file_######.nc'
+    gpyoptfile: str = 'gpyopt_file_######.nc'
+    orgfile: str = 'org_file_######.nc'
 
     def __post_init__(self):
         self.current_time = datetime.now(self.jst).strftime("%m-%d-%H:%M")
