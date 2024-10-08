@@ -125,8 +125,8 @@ def update_netcdf(config, init: str, output: str, pe: int, input_values):
 def run_simulation(config):
     """シミュレーションを実行する"""
     subprocess.run(["mpirun", "-n", str(config.nofpe), "../scale-rm", f"{save_instance.init_dir_path}/run_R20kmDX500m.conf"])
-
-
+    if result.returncode != 0:
+        print(f"Simulation failed with return code {result.returncode}")
 
 def process_history_files(config):
     """シミュレーション結果を集計する"""
@@ -134,12 +134,18 @@ def process_history_files(config):
     for pe in range(config.nofpe):
         gpyopt = config.gpyoptfile.replace('######', str(pe).zfill(6))
         history = config.history_file.replace('######', str(pe).zfill(6))
+        print(f"Processing PE {pe}: history file = {history}, gpyopt file = {gpyopt}")
+        if not os.path.exists(history):
+            print(f"Error: History file {history} does not exist.")
+            return
         subprocess.run(["cp", history, gpyopt])
 
     # 結果の集計
     for pe in range(config.nofpe):
         fiy, fix = np.unravel_index(pe, (config.fny, config.fnx))
+        # nc = netCDF4.Dataset(config.history_file.replace('######', str(pe).zfill(6)))
         nc = netCDF4.Dataset(config.history_file.replace('######', str(pe).zfill(6)))
+
         onc = netCDF4.Dataset(config.orgfile.replace('######', str(pe).zfill(6)))
         nt = nc.dimensions['time'].size
         nx = nc.dimensions['x'].size

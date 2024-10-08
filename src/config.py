@@ -54,11 +54,18 @@ class Save:
 
     def __post_init__(self):
         self.current_time = datetime.now(self.jst).strftime("%m-%d-%H:%M")
-        self.log_dir_path = f"{self.top_dir_path}/logs"
-        self.fig_dir_path = f"{self.top_dir_path}/results/plots"
-        self.summary_dir_path = f"{self.top_dir_path}/results/summaries"
-        self.init_dir_path = f"{self.top_dir_path}/data/input_files"
-        self.output_dir_path = f"{self.top_dir_path}/data/output_files"
+        self.log_dir_path = os.path.join(self.top_dir_path, "logs")
+        self.fig_dir_path = os.path.join(self.top_dir_path, "results", "plots")
+        self.summary_dir_path = os.path.join(self.top_dir_path, "results", "summaries")
+        self.init_dir_path = os.path.join(self.top_dir_path, "data", "input_files")
+        self.output_dir_path = os.path.join(self.top_dir_path, "data", "output_files")
+
+        # 以下のファイルパスもディレクトリパスと結合して適切なパスを設定
+        self.init_file = os.path.join(self.init_dir_path, self.init_file)
+        self.org_file = os.path.join(self.init_dir_path, self.org_file)
+        self.history_file = os.path.join(self.init_dir_path, self.history_file)
+        self.gpyoptfile = os.path.join(self.output_dir_path, self.gpyoptfile)
+        self.orgfile = os.path.join(self.init_dir_path, self.orgfile)
 
 save_instance = Save()
 
