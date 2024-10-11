@@ -118,6 +118,6 @@ class SCALE:
     def __post_init__(self):
         self.init_file = f"{self.save.init_dir_path}/init_00000101-000000.000.pe######.nc"
         self.org_file = f"{self.save.init_dir_path}/init_00000101-000000.000.pe######.org.nc"
-        self.history_file = f"{self.save.output_dir_path}/history.pe######.nc"
+        self.history_file = f"{self.save.init_dir_path}/history.pe######.nc"
 
 scale_instance = SCALE()
