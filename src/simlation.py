@@ -177,7 +177,7 @@ def process_history_files(config):
     # for i in range(40):
     #     sum_co[i] += dat[1, 0, i, 0] * 3600
     #     sum_no[i] += odat[1, 0, i, 0] * 3600
-    # return sum_co, sum_no
+
         if pe == 0:
             dat = np.zeros((nt, nz, config.fny * ny, config.fnx * nx))
         dat[:, 0, gy1:gy2, gx1:gx2] = nc[control_instance.target_var][:]
