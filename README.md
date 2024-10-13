@@ -1,29 +1,37 @@
 # WBE-AutomaticControlUnion
 ## 概要
-Warm Bubble Experimentを用いた, 自動制御連合講演会用のシミュレーション(2024/09/30).
+Warm Bubble Experimentを用いたシミュレーション. 目的関数:累積降水量(2024/10/13).
 
-初期値介入による制御問題をBO, PSO, GA, RSの4手法を1度にsimulateできる（ユーザーはmain.pyを実行）.
+初期値介入による制御問題をBO, RS　もしくはPSO, GAの2手法をsimulateできる（ユーザーはsim_OO.pyを実行）.
 
-t=0の時の(y, z) = (20, 0), (21, 0), (22, 0)グリッドの変数MOMYを制御する
+基本実装：t=0の時の(y, z) = (20, 0), (21, 0), (22, 0)グリッドの変数MOMYを制御する
 
 ## ファイル構造
 - ~/scale-5.5.1/scale-rm/test/tutorial/ideal/WarmBubbleExperiment/WBE-AutomaticControlUnion
-    - src/
-        - main.py            #実行ファイル（メインロジック）
-        - simulation.py     # シミュレーション関連の関数
-        - optimization.py   # ベイズ最適化やランダムサーチ関連の関数
-        - analysis.py       # 結果の集計や可視化関連の関数
-        - config.py         # 設定値をまとめたファイル
+    - sim_BORS.py
 
-    - data/                 # 入力データやシミュレーション結果
-        - input_files/
-        - output_files/     # 生データ
+    - sim_PSOGA.py
+
+    - optimize.py ブラックボックス最適化手法の実装
+
+    - analysis.py シミュレーション後の処理
+
+    - make_directory ディレクトリ階層構造を作成
+
+    - config.py ブラックボックス最適化手法のハイパーパラメータ
+
+    - calc_object_val.py 目的関数の計算　どんな目的関数にするか！
+
+    - visualize_input.py 入力値の探索過程の可視化（sim_OO.pyには含まれない）
 
     - results/              # グラフや結果を保存
-        - plots/
-        - summaries/        # 制御結果のサマリー
-
-    - logs/                 # 実行時のログやエラーメッセージ
+        - BORS
+            - シミュレーション時間ごとのファイル
+                - Accumulated-PREC-BarPlot
+                - Line-Graph
+                - Time-BarPlot
+                - summary
+        - PSOGA
 
 ## 可能な実験設定
 - 制御変数の変更
