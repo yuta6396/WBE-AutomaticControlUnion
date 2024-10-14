@@ -15,6 +15,7 @@ from zoneinfo import ZoneInfo
 from optimize import random_search
 from analysis import *
 from make_directory import make_directory
+from config import time_interval_sec
 
 matplotlib.use('Agg')
 
@@ -70,15 +71,13 @@ fny = 2
 fnx = 1
 run_time = 20
 
-sim_time_sec = 3600 # WBEは1h行われる
-
 varname = 'PREC'
 
 init_file = "init_00000101-000000.000.pe######.nc"
 org_file = "init_00000101-000000.000.pe######.org.nc"
 history_file = "history.pe######.nc"
 
-orgfile = 'no-control.pe######.nc'
+orgfile = f'no-control_{str(time_interval_sec)}.pe######.nc'
 file_path = os.path.dirname(os.path.abspath(__file__))
 gpyoptfile=f"gpyopt.pe######.nc"
 
@@ -157,11 +156,35 @@ def sim(control_input):
         dat[:, 0, gy1:gy2, gx1:gx2] = nc[varname][:]
         odat[:, 0, gy1:gy2, gx1:gx2] = onc[varname][:]
 
+    # 各時刻までの平均累積降水量をplot 
+    # 小数第2位までフォーマットして文字列化
+    formatted_control_input = "_".join([f"{val:.2f}" for val in control_input]) 
+    dir_name = f"{base_dir}/Time_lapse/"
+    os.makedirs(dir_name, exist_ok=True)
+    for i in range(1,nt):
+        l1, l2 = 'no-control', 'under-control'
+        c1, c2 = 'blue', 'green'
+        xl = 'y'
+        yl = 'PREC'
+        plt.plot(odat[i, 0, :, 0], color=c1, label=l1)
+        plt.plot(dat[i, 0, :, 0], color=c2, label=l2)
+        plt.xlabel(xl)
+        plt.ylabel(yl)
+        plt.title(f"t={(i-1)*time_interval_sec}-{i*time_interval_sec}")
+        plt.legend()
+        filename = dir_name + \
+            f'input={formatted_control_input}_t={i}.png'
+        #plt.ylim(0, 0.005)
+        plt.savefig(filename)
+        plt.close()
+        
     sum_co=np.zeros(40) #制御後の累積降水量
     sum_no=np.zeros(40) #制御前の累積降水量
-    for i in range(40):
-        sum_co[i]+=dat[1,0,i,0]*sim_time_sec
-        sum_no[i]+=odat[1,0,i,0]*sim_time_sec
+    for y_i in range(40):
+        for t_j in range(nt):
+            if t_j > 0:
+                sum_co[y_i] += dat[t_j,0,y_i,0]*time_interval_sec
+                sum_no[y_i] += odat[t_j,0,y_i,0]*time_interval_sec
     return sum_co, sum_no
 
 def calculate_objective_func_val(sum_co):
@@ -215,8 +238,10 @@ def black_box_function(control_input):
         dat[:, 0, gy1:gy2, gx1:gx2] = nc[varname][:]
 
         sum_co=np.zeros(40) #制御後の累積降水量
-        for i in range(40):
-            sum_co[i] += dat[1, 0, i, 0] * sim_time_sec
+        for y_i in range(40):
+            for t_j in range(nt):
+                if t_j > 0: #なぜかt_j=0に　-1*10^30くらいの小さな値が入っているため除外　
+                    sum_co[y_i] += dat[t_j,0,y_i,0]*time_interval_sec
     objective_val = calculate_objective_func_val(sum_co)
 
     return objective_val
@@ -238,6 +263,7 @@ f.write(f"\ninitial_design_numdata_vec = {initial_design_numdata_vec}")
 f.write(f"\nmax_iter_vec = {max_iter_vec}")
 f.write(f"\nrandom_iter_vec = {random_iter_vec}")
 f.write(f"\ntrial_num = {trial_num}")
+f.write(f"\n{time_interval_sec=}")
 ################
 f.close()
 

@@ -1,3 +1,4 @@
+time_interval_sec = 300 # 何秒おきに計算するか  .confのFILE_HISTORY_DEFAULT_TINTERVALと同値にする
 
 #PSO LDWIM
 w_max = 0.9
