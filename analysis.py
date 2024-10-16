@@ -1,7 +1,34 @@
 import numpy as np  
 import random       
 import matplotlib.pyplot as plt  
-import os           
+import os     
+import netCDF4
+import matplotlib.animation as animation
+import matplotlib as mpl
+
+from config import time_interval_sec
+
+
+def calculate_objective_func_val(sum_co, Opt_purpose):
+    """
+    得られた各地点の累積降水量予測値(各Y-grid)から目的関数の値を導出する
+    """
+    represent_prec = 0
+    if Opt_purpose == "MinSum" or Opt_purpose == "MaxSum":
+        represent_prec = np.sum(sum_co)
+        print(represent_prec)
+
+    elif Opt_purpose == "MinMax" or Opt_purpose == "MaxMax":
+        represent_prec = 0
+        for j in range(40):  
+            if sum_co[j] > represent_prec:
+                represent_prec = sum_co[j] # 最大の累積降水量地点
+    else:
+        raise ValueError(f"予期しないOpt_purposeの値: {Opt_purpose}")
+
+    if Opt_purpose == "MaxSum" or Opt_purpose == "MaxMax":
+        represent_prec = -represent_prec # 目的関数の最小化問題に統一   
+    return represent_prec
 
 
 def random_reset(trial_i:int):
@@ -97,12 +124,12 @@ def vizualize_simulation(BO_ratio_matrix, RS_ratio_matrix, BO_time_matrix, RS_ti
         data = [BO_ratio_matrix[exp_i, :], RS_ratio_matrix[exp_i, :]]
         figure_BarPlot(exp_i, "PREC", data, color, base_dir, dpi, Alg_vec, cnt_vec)
 
-    #timeの箱ひげ図比較
-    f.write(f"\nBO_time_matrix = \n{BO_time_matrix}")
-    f.write(f"\nRS_time_matrix = \n{RS_time_matrix}")
-    for exp_i in range(exp_num):
-        data = [BO_time_matrix[exp_i, :], RS_time_matrix[exp_i, :]]
-        figure_BarPlot(exp_i, "Time", data, color, base_dir, dpi, Alg_vec, cnt_vec)
+    # #timeの箱ひげ図比較　機能の未確認済み
+    # f.write(f"\nBO_time_matrix = \n{BO_time_matrix}")
+    # f.write(f"\nRS_time_matrix = \n{RS_time_matrix}")
+    # for exp_i in range(exp_num):
+    #     data = [BO_time_matrix[exp_i, :], RS_time_matrix[exp_i, :]]
+    #     figure_BarPlot(exp_i, "Time", data, color, base_dir, dpi, Alg_vec, cnt_vec)
 
 
         #累積降水量の折れ線グラフ比較
@@ -151,4 +178,134 @@ def vizualize_simulation(BO_ratio_matrix, RS_ratio_matrix, BO_time_matrix, RS_ti
                 RS_vec[exp_i] = RS_ratio_matrix[exp_i, trial_i]
 
     central_summary(BO_vec, RS_vec, "Max", f, base_dir, dpi, Alg_vec, color, trial_num, cnt_vec)
+    return
+
+
+def figure_time_lapse(control_input, base_dir, odat, dat, nt, anim_varname):
+    # 小数第2位までフォーマットして文字列化
+    formatted_control_input = "_".join([f"{val:.2f}" for val in control_input]) 
+
+    # 画像
+    l1, l2 = 'no-control', 'under-control'
+    c1, c2 = 'blue', 'green'
+    xl = 'y'
+    yl = 'PREC'
+    # for i in range(1,nt):
+    #     plt.plot(odat[i, 0, :, 0], color=c1, label=l1)
+    #     plt.plot(dat[i, 0, :, 0], color=c2, label=l2)
+    #     plt.xlabel(xl)
+    #     plt.ylabel(yl)
+    #     plt.title(f"t={(i-1)*time_interval_sec}-{i*time_interval_sec}")
+    #     plt.legend()
+    #     filename = dir_name + \
+    #         f'input={formatted_control_input}_t={i}.png'
+    #     #plt.ylim(0, 0.005)
+    #     plt.savefig(filename)
+    #     plt.close()
+
+    # 動画
+    ims = []
+    fig, ax = plt.subplots(figsize = (6, 6))
+    # タイトルのポジション
+    x = 0.
+    y = 0.101
+
+    if anim_varname == "PREC":
+        for t in range(nt) :
+            im_noC = ax.plot(odat[t,0,:,0], color=c1, label=l1)
+            im_C = ax.plot(dat[t,0,:,0],color=c2, label=l2)
+            
+            ax.set_ylim(0,0.025)
+            ax.set_xlim(0,40)
+            ax.set_xlabel('Y')
+            ax.set_ylabel(anim_varname)
+            title = ax.text(x, y, f"t={(t-1)*time_interval_sec}-{t*time_interval_sec}", fontsize=15)
+            if t == 0 :
+                ax.legend()
+            ims.append(im_noC + im_C + [title])
+
+        ani = animation.ArtistAnimation(fig, ims, interval=300)
+        ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.mp4', writer='ffmpeg')    
+
+    else:
+        # MOMY
+        levels_V = np.arange(-30.,30.1,3)
+        fct = 1.        
+        for t in range(nt) :
+            im = ax.contourf(dat[t,:,:,0] * fct,levels=levels_V, cmap='jet')
+            ax.set_xlabel('Y')
+            ax.set_ylabel('Z')
+            #ax.set_title(f"t={t*time_interval_sec}(sec)", fontsize=15)
+            title = ax.text(x, y, f"t={t*time_interval_sec}", fontsize=15)
+            if t == nt - 1 :
+                plt.colorbar(im, extend='both')
+            ims.append(im.collections + [title])
+        ani = animation.ArtistAnimation(fig, ims, interval=300)
+        ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.mp4', writer='ffmpeg')    
+    return
+
+
+def anim_exp(base_dir, control_input):
+    """
+    まだ未完成
+    """
+    formatted_control_input = "_".join([f"{val:.2f}" for val in control_input]) 
+    merged_filename = 'merged_history_300.pe000000.nc'
+    # for PREC
+    anim_varname = 'PREC'
+
+    # # for Qhyd
+    anim_varname = 'QHYD'
+    fct = 1000.
+    levels_qhyd = np.arange(0.,10.,0.5)
+    cmap_qhyd = 'jet'
+
+    nc = netCDF4.Dataset(merged_filename)
+    dim = np.ndim(nc[anim_varname][:])
+    if 'dat' not in locals():
+        nt = nc.dimensions['time'].size
+        nx = nc.dimensions['x'].size
+        ny = nc.dimensions['y'].size
+        nz = nc.dimensions['z'].size
+        unit = nc[anim_varname].units
+        dat = np.empty((nt,nz,ny,nx))
+        lon = np.empty((ny,nx))
+        lat = np.empty((ny,nx))
+        if dim == 3 : # t,y,x
+            dat[:,0] = nc[anim_varname][:]
+        elif dim == 4 : # t,z,y,x
+            dat = nc[anim_varname][:]
+        else :
+            print('variable dimension of {:} not supported. --Abort'.format(dim))
+            exit()
+    # make anim
+    ims = []
+    fig, ax = plt.subplots(figsize = (6, 6))
+    x = 0.
+    y = 0.101
+
+    for t in range(nt) :
+
+        if dim == 3 :
+            im = ax.plot(dat[t,0,:,0],c='k',label=anim_varname)
+            ax.set_ylim(0,0.1)
+            ax.set_xlim(0,40)
+            ax.set_xlabel('Y')
+            ax.set_ylabel(unit)
+            title = ax.text(x, y, "t = {}".format(t), fontsize=15)
+            if t == 0 :
+                ax.legend()
+            ims.append(im + [title])
+
+        elif dim == 4 :
+            im = ax.contourf(dat[t,:,:,0] * fct,levels=levels_qhyd, cmap=cmap_qhyd)
+            ax.set_xlabel('Y')
+            ax.set_ylabel('Z')
+            title = ax.text(x, y, "t = {}".format(t), fontsize=15)
+            if t == nt - 1 :
+                plt.colorbar(im, extend='both')
+            ims.append(im.collections + [title])
+
+    ani = animation.ArtistAnimation(fig, ims, interval=100)
+    ani.save(f'{base_dir}/animation/{formatted_control_input}_{anim_varname}.mp4', writer='ffmpeg')
     return

@@ -77,6 +77,11 @@ LDIWMを採用（w_max=0.9, w_min=0.4, c1=c2=2.0）
 
 ## 注意事項
 - run_R20kmDX500m.confに#でコメントしようとするとエラーが起こる
+- confファイルで&HISTORY_ITEM name='PREC', taverage=.true.としているので、PRECの値はTINTERVALの平均PRECで定義されます。TINTERVAL=3600なので、3600倍することで一時間の累積降水量が算出できます。
 ## 寄稿者
 
 ## 参照
+
+## メモ
+- 制御前とinput=0の制御後のPRECの値が異なるのはなんでか
+- 12個あるはずの.mp4が6個しかない　BOかRSどっちかしか保存されていないor上書き

@@ -20,7 +20,7 @@ file_dir = f"result/windfield/{current_time}/"
 os.makedirs(file_dir, exist_ok=True)
 
 # netCDFファイルの読み込み
-ncfile = "history.pe000001.nc"
+ncfile = "merged_history_3600.pe000000.nc"
 ds = nc.Dataset(ncfile)
 
 # データの読み込み

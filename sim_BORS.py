@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo
 from optimize import random_search
 from analysis import *
 from make_directory import make_directory
-from config import time_interval_sec
+from config import time_interval_sec, bound
 
 matplotlib.use('Agg')
 
@@ -26,16 +26,16 @@ BORSのシミュレーション
 #### User 設定変数 ##############
 
 input_var = "MOMY" # MOMY, RHOT, QVから選択
-max_input = 30 #20240830現在ではMOMY=30, RHOT=10, QV=0.1にしている
+max_input = bound #20240830現在ではMOMY=30, RHOT=10, QV=0.1にしている
 Alg_vec = ["BO", "RS"]
 num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
 initial_design_numdata_vec = [3] #BOのRS回数
-max_iter_vec = [5, 5]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+max_iter_vec = [10, 20, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
-trial_num = 2  #箱ひげ図作成時の繰り返し回数
+trial_num = 1  #箱ひげ図作成時の繰り返し回数
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
@@ -82,6 +82,7 @@ file_path = os.path.dirname(os.path.abspath(__file__))
 gpyoptfile=f"gpyopt.pe######.nc"
 
 
+### SCALE-RM関連関数
 def prepare_files(pe: int):
     """ファイルの準備と初期化を行う"""
     output_file = f"out-{input_var}.pe######.nc"
@@ -128,6 +129,8 @@ def sim(control_input):
     """
     制御入力決定後に実際にその入力値でシミュレーションする
     """
+    #control_input = [0,0,0]  # 非制御を見たいとき
+
     for pe in range(nofpe):
         init, output = prepare_files(pe)
         init = update_netcdf(init, output, pe, control_input)
@@ -153,31 +156,23 @@ def sim(control_input):
         if pe == 0:
             dat = np.zeros((nt, nz, fny*ny, fnx*nx))
             odat = np.zeros((nt, nz, fny*ny, fnx*nx))
+            control_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
+            no_control_odat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
+        # print(nc.variables.keys()) 
         dat[:, 0, gy1:gy2, gx1:gx2] = nc[varname][:]
         odat[:, 0, gy1:gy2, gx1:gx2] = onc[varname][:]
-
+        # MOMYの時.ncには'V'で格納される
+        control_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
+        no_control_odat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
     # 各時刻までの平均累積降水量をplot 
-    # 小数第2位までフォーマットして文字列化
-    formatted_control_input = "_".join([f"{val:.2f}" for val in control_input]) 
-    dir_name = f"{base_dir}/Time_lapse/"
-    os.makedirs(dir_name, exist_ok=True)
-    for i in range(1,nt):
-        l1, l2 = 'no-control', 'under-control'
-        c1, c2 = 'blue', 'green'
-        xl = 'y'
-        yl = 'PREC'
-        plt.plot(odat[i, 0, :, 0], color=c1, label=l1)
-        plt.plot(dat[i, 0, :, 0], color=c2, label=l2)
-        plt.xlabel(xl)
-        plt.ylabel(yl)
-        plt.title(f"t={(i-1)*time_interval_sec}-{i*time_interval_sec}")
-        plt.legend()
-        filename = dir_name + \
-            f'input={formatted_control_input}_t={i}.png'
-        #plt.ylim(0, 0.005)
-        plt.savefig(filename)
-        plt.close()
-        
+    # print(nc[varname].shape)
+    # print(nc['V'].shape)
+    figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
+    figure_time_lapse(control_input, base_dir, no_control_odat, control_dat, nt, input_var)
+    # merged_history の作成
+    # subprocess.run(["mpirun", "-n", "2", "./sno", "sno_R20kmDX500m.conf"])
+    # anim_exp(base_dir, control_input)
+
     sum_co=np.zeros(40) #制御後の累積降水量
     sum_no=np.zeros(40) #制御前の累積降水量
     for y_i in range(40):
@@ -185,28 +180,8 @@ def sim(control_input):
             if t_j > 0:
                 sum_co[y_i] += dat[t_j,0,y_i,0]*time_interval_sec
                 sum_no[y_i] += odat[t_j,0,y_i,0]*time_interval_sec
+    #print(sum_co-sum_no)
     return sum_co, sum_no
-
-def calculate_objective_func_val(sum_co):
-    """
-    得られた各地点の累積降水量予測値(各Y-grid)から目的関数の値を導出する
-    """
-    represent_prec = 0
-    if Opt_purpose == "MinSum" or Opt_purpose == "MaxSum":
-        represent_prec = np.sum(sum_co)
-        print(represent_prec)
-
-    elif Opt_purpose == "MinMax" or Opt_purpose == "MaxMax":
-        represent_prec = 0
-        for j in range(40):  
-            if sum_co[j] > represent_prec:
-                represent_prec = sum_co[j] # 最大の累積降水量地点
-    else:
-        raise ValueError(f"予期しないOpt_purposeの値: {Opt_purpose}")
-
-    if Opt_purpose == "MaxSum" or Opt_purpose == "MaxMax":
-        represent_prec = -represent_prec # 目的関数の最小化問題に統一   
-    return represent_prec
 
 def black_box_function(control_input):
     """
@@ -242,7 +217,7 @@ def black_box_function(control_input):
             for t_j in range(nt):
                 if t_j > 0: #なぜかt_j=0に　-1*10^30くらいの小さな値が入っているため除外　
                     sum_co[y_i] += dat[t_j,0,y_i,0]*time_interval_sec
-    objective_val = calculate_objective_func_val(sum_co)
+    objective_val = calculate_objective_func_val(sum_co, Opt_purpose)
 
     return objective_val
 
@@ -253,7 +228,7 @@ make_directory(base_dir)
 filename = f"config.txt"
 config_file_path = os.path.join(base_dir, filename)  # 修正ポイント
 f = open(config_file_path, 'w')
-###設定メモ###
+##設定メモ##
 f.write(f"input_var ={input_var}")
 f.write(f"\nmax_input ={max_input}")
 f.write(f"\nAlg_vec ={Alg_vec}")
@@ -274,12 +249,15 @@ RS_time_matrix = np.zeros((len(max_iter_vec), trial_num))
 
 BO_file = os.path.join(base_dir, "summary", f"{Alg_vec[0]}.txt")
 RS_file = os.path.join(base_dir, "summary", f"{Alg_vec[1]}.txt")
+progress_file = os.path.join(base_dir, "progress.txt")
 
 
-with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
+with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file, 'w') as f_progress:
     for trial_i in range(trial_num):
+        f_progress.write(f"\n\n{trial_i=}\n")
         cnt_base = 0
         for exp_i in range(len(max_iter_vec)):
+            f_progress.write(f"{exp_i=},  ")
             if exp_i > 0:
                 cnt_base  = cnt_vec[exp_i - 1]
 

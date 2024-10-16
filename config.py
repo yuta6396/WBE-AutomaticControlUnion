@@ -1,11 +1,11 @@
 time_interval_sec = 300 # 何秒おきに計算するか  .confのFILE_HISTORY_DEFAULT_TINTERVALと同値にする
-
+bound = 30 #20240830現在ではMOMY=30, RHOT=10, QV=0.1にしている
 #PSO LDWIM
 w_max = 0.9
 w_min = 0.4
 
 # GA Parameters
-bound = 30
+
 gene_length = 3  # Number of genes per individual 制御入力grid数
 crossover_rate = 0.8  # Crossover rate
 mutation_rate = 0.05  # Mutation rate

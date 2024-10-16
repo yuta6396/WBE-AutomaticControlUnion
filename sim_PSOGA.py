@@ -10,7 +10,7 @@ import pytz
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from config import time_interval_sec, w_max, w_min, gene_length, crossover_rate, mutation_rate, lower_bound, upper_bound, alpha, tournament_size
+from config import bound, time_interval_sec, w_max, w_min, gene_length, crossover_rate, mutation_rate, lower_bound, upper_bound, alpha, tournament_size
 from optimize import *
 from analysis import *
 from make_directory import make_directory
@@ -23,14 +23,14 @@ PSOGAのシミュレーション
 
 #### User 設定変数 ##############
 
-input_var = "MOMY" # MOMY, RHOT, QVから選択
-max_input = 30 #20240830現在ではMOMY=30, RHOT=10, QV=0.1にしている
+input_var = "RHOT" # MOMY, RHOT, QVから選択
+max_input = bound
 Alg_vec = ["PSO", "GA"]
 num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-particles_vec = [3]           # 粒子数
-iterations_vec = [2]        # 繰り返し回数
+particles_vec = [5, 10, 10, 10, 10, 10]           # 粒子数
+iterations_vec = [2, 3, 5, 10, 15, 20]        # 繰り返し回数
 pop_size_vec = particles_vec  # Population size
 num_generations_vec = iterations_vec  # Number of generations
 
@@ -38,7 +38,7 @@ num_generations_vec = iterations_vec  # Number of generations
 c1 = 2.0
 c2 = 2.0
 
-trial_num = 2  # 乱数種の数
+trial_num = 10  # 乱数種の数
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
@@ -139,30 +139,17 @@ def sim(control_input):
         if pe == 0:
             dat = np.zeros((nt, nz, fny*ny, fnx*nx))
             odat = np.zeros((nt, nz, fny*ny, fnx*nx))
+            control_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
+            no_control_odat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
+
         dat[:, 0, gy1:gy2, gx1:gx2] = nc[varname][:]
         odat[:, 0, gy1:gy2, gx1:gx2] = onc[varname][:]
-
+        # MOMYの時.ncには'V'で格納される
+        control_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
+        no_control_odat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
     # 各時刻までの平均累積降水量をplot 
-    # 小数第2位までフォーマットして文字列化
-    formatted_control_input = "_".join([f"{val:.2f}" for val in control_input]) 
-    dir_name = f"{base_dir}/Time_lapse/"
-    os.makedirs(dir_name, exist_ok=True)
-    for i in range(1,nt):
-        l1, l2 = 'no-control', 'under-control'
-        c1, c2 = 'blue', 'green'
-        xl = 'y'
-        yl = 'PREC'
-        plt.plot(odat[i, 0, :, 0], color=c1, label=l1)
-        plt.plot(dat[i, 0, :, 0], color=c2, label=l2)
-        plt.xlabel(xl)
-        plt.ylabel(yl)
-        plt.title(f"t={(i-1)*time_interval_sec}-{i*time_interval_sec}")
-        plt.legend()
-        filename = dir_name + \
-            f'input={formatted_control_input}_t={i}.png'
-        #plt.ylim(0, 0.005)
-        plt.savefig(filename)
-        plt.close()
+    figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
+    figure_time_lapse(control_input, base_dir, no_control_odat, control_dat, nt, input_var)
         
     sum_co=np.zeros(40) #制御後の累積降水量
     sum_no=np.zeros(40) #制御前の累積降水量
@@ -172,27 +159,6 @@ def sim(control_input):
                 sum_co[y_i] += dat[t_j,0,y_i,0]*time_interval_sec
                 sum_no[y_i] += odat[t_j,0,y_i,0]*time_interval_sec
     return sum_co, sum_no
-
-def calculate_objective_func_val(sum_co):
-    """
-    得られた各地点の累積降水量予測値(各Y-grid)から目的関数の値を導出する
-    """
-    represent_prec = 0
-    if Opt_purpose == "MinSum" or Opt_purpose == "MaxSum":
-        represent_prec = np.sum(sum_co)
-        print(represent_prec)
-
-    elif Opt_purpose == "MinMax" or Opt_purpose == "MaxMax":
-        represent_prec = 0
-        for j in range(40):  
-            if sum_co[j] > represent_prec:
-                represent_prec = sum_co[j] # 最大の累積降水量地点
-    else:
-        raise ValueError(f"予期しないOpt_purposeの値: {Opt_purpose}")
-
-    if Opt_purpose == "MaxSum" or Opt_purpose == "MaxMax":
-        represent_prec = -represent_prec # 目的関数の最小化問題に統一   
-    return represent_prec
 
 def black_box_function(control_input):
     """
@@ -228,7 +194,7 @@ def black_box_function(control_input):
             for t_j in range(nt):
                 if t_j > 0: #なぜかt_j=0に　-1*10^30くらいの小さな値が入っているため除外　
                     sum_co[y_i] += dat[t_j,0,y_i,0]*time_interval_sec
-    objective_val = calculate_objective_func_val(sum_co)
+    objective_val = calculate_objective_func_val(sum_co, Opt_purpose)
 
     return objective_val
 
@@ -275,11 +241,14 @@ GA_time_matrix = np.zeros((len(particles_vec), trial_num))
 
 PSO_file = os.path.join(base_dir, "summary", f"{Alg_vec[0]}.txt")
 GA_file = os.path.join(base_dir, "summary", f"{Alg_vec[1]}.txt")
+progress_file = os.path.join(base_dir, "progress.txt")
 
-with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA:
+with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA,  open(progress_file, 'w') as f_progress:
     for trial_i in range(trial_num):
+        f_progress.write(f"\n\n{trial_i=}\n")
         cnt_base = 0
         for exp_i in range(len(particles_vec)):
+            f_progress.write(f"{exp_i=},  ")
             if exp_i > 0:
                 cnt_base  = cnt_vec[exp_i - 1]
 
