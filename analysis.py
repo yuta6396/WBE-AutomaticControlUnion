@@ -207,8 +207,8 @@ def figure_time_lapse(control_input, base_dir, odat, dat, nt, anim_varname):
     ims = []
     fig, ax = plt.subplots(figsize = (6, 6))
     # タイトルのポジション
-    x = 0.
-    y = 0.101
+    x = 15
+    y = 97
 
     if anim_varname == "PREC":
         for t in range(nt) :
@@ -219,29 +219,31 @@ def figure_time_lapse(control_input, base_dir, odat, dat, nt, anim_varname):
             ax.set_xlim(0,40)
             ax.set_xlabel('Y')
             ax.set_ylabel(anim_varname)
-            title = ax.text(x, y, f"t={(t-1)*time_interval_sec}-{t*time_interval_sec}", fontsize=15)
+            title = ax.text(x, y, f"Time: {t*5} min", fontsize=15)
             if t == 0 :
                 ax.legend()
             ims.append(im_noC + im_C + [title])
 
-        ani = animation.ArtistAnimation(fig, ims, interval=300)
-        ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.mp4', writer='ffmpeg')    
-
     else:
-        # MOMY
-        levels_V = np.arange(-30.,30.1,3)
-        fct = 1.        
+        if anim_varname == "MOMY":
+            levels = np.arange(-30.,30.1,3)
+            fct = 1.   
+        else: # QHYD  
+            levels = np.arange(0.,10.,0.5)   
+            fct = 1000.
+
         for t in range(nt) :
-            im = ax.contourf(dat[t,:,:,0] * fct,levels=levels_V, cmap='jet')
+            im = ax.contourf(dat[t,:,:,0] * fct,levels=levels, cmap='jet')
             ax.set_xlabel('Y')
             ax.set_ylabel('Z')
-            #ax.set_title(f"t={t*time_interval_sec}(sec)", fontsize=15)
-            title = ax.text(x, y, f"t={t*time_interval_sec}", fontsize=15)
+            title = ax.text(x, y, f"Time: {t*5} min", fontsize=15)
             if t == nt - 1 :
                 plt.colorbar(im, extend='both')
             ims.append(im.collections + [title])
-        ani = animation.ArtistAnimation(fig, ims, interval=300)
-        ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.mp4', writer='ffmpeg')    
+        
+    ani = animation.ArtistAnimation(fig, ims, interval=300)    
+    #ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.mp4', writer='ffmpeg') 
+    ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.gif', writer='pillow')   
     return
 
 

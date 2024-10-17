@@ -31,8 +31,8 @@ Alg_vec = ["BO", "RS"]
 num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-initial_design_numdata_vec = [3] #BOのRS回数
-max_iter_vec = [10, 20, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [1] #BOのRS回数
+max_iter_vec = [2]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
 trial_num = 1  #箱ひげ図作成時の繰り返し回数
@@ -129,7 +129,7 @@ def sim(control_input):
     """
     制御入力決定後に実際にその入力値でシミュレーションする
     """
-    #control_input = [0,0,0]  # 非制御を見たいとき
+    control_input = [0,0,0]  # 非制御を見たいとき
 
     for pe in range(nofpe):
         init, output = prepare_files(pe)
@@ -156,19 +156,25 @@ def sim(control_input):
         if pe == 0:
             dat = np.zeros((nt, nz, fny*ny, fnx*nx))
             odat = np.zeros((nt, nz, fny*ny, fnx*nx))
-            control_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
-            no_control_odat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
+            MOMY_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
+            MOMY_no_dat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
+            QHYD_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
+            QHYD_no_dat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
         # print(nc.variables.keys()) 
         dat[:, 0, gy1:gy2, gx1:gx2] = nc[varname][:]
         odat[:, 0, gy1:gy2, gx1:gx2] = onc[varname][:]
         # MOMYの時.ncには'V'で格納される
-        control_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
-        no_control_odat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
+        MOMY_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
+        MOMY_no_dat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
+
+        QHYD_dat[:, :, gy1:gy2, gx1:gx2] = nc['QHYD'][:]
+        QHYD_no_dat[:, :, gy1:gy2, gx1:gx2] = onc['QHYD'][:]
     # 各時刻までの平均累積降水量をplot 
     # print(nc[varname].shape)
     # print(nc['V'].shape)
     figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
-    figure_time_lapse(control_input, base_dir, no_control_odat, control_dat, nt, input_var)
+    figure_time_lapse(control_input, base_dir, MOMY_no_dat, MOMY_dat, nt, input_var)
+    figure_time_lapse(control_input, base_dir, QHYD_no_dat, QHYD_dat, nt, "QHYD")
     # merged_history の作成
     # subprocess.run(["mpirun", "-n", "2", "./sno", "sno_R20kmDX500m.conf"])
     # anim_exp(base_dir, control_input)
