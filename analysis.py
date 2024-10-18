@@ -209,6 +209,7 @@ def figure_time_lapse(control_input, base_dir, odat, dat, nt, anim_varname):
     # タイトルのポジション
     x = 15
     y = 97
+    interval = 500 # gifの時間間隔
 
     if anim_varname == "PREC":
         for t in range(nt) :
@@ -241,7 +242,7 @@ def figure_time_lapse(control_input, base_dir, odat, dat, nt, anim_varname):
                 plt.colorbar(im, extend='both')
             ims.append(im.collections + [title])
         
-    ani = animation.ArtistAnimation(fig, ims, interval=300)    
+    ani = animation.ArtistAnimation(fig, ims, interval=interval)    
     #ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.mp4', writer='ffmpeg') 
     ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.gif', writer='pillow')   
     return
