@@ -233,19 +233,33 @@ def figure_time_lapse(control_input, base_dir, odat, dat, nt, anim_varname):
             levels = np.arange(0.,10.,0.5)   
             fct = 1000.
 
-        for t in range(nt) :
-            im = ax.contourf(dat[t,:,:,0] * fct,levels=levels, cmap='jet')
-            ax.set_xlabel('Y')
-            ax.set_ylabel('Z')
-            title = ax.text(x, y, f"Time: {t*5} min", fontsize=15)
-            if t == nt - 1 :
-                plt.colorbar(im, extend='both')
-            ims.append(im.collections + [title])
-        
-    ani = animation.ArtistAnimation(fig, ims, interval=interval)    
-    #ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.mp4', writer='ffmpeg') 
-    ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.gif', writer='pillow')   
+       # for t in range(nt) :
+        #     im = ax.contourf(dat[t,:,:,0] * fct,levels=levels, cmap='jet')
+        #     ax.set_xlabel('Y')
+        #     ax.set_ylabel('Z')
+        #     title = ax.text(x, y, f"Time: {t*5} min", fontsize=15)
+        #     if t == nt - 1 :
+        #         plt.colorbar(im, extend='both')
+        #     ims.append(im.collections + [title])
+        for t in range(4, 6):
+            ax.clear()  # 既存のプロットをクリア
+            im = ax.contourf(dat[t, :, :, 0] * fct, levels=levels, cmap='jet')
+            ax.set_xlabel('Y', fontsize = 15)
+            ax.set_ylabel('Z', fontsize = 15)
+            ax.text(x, y, f"Time: {t*5} min", fontsize=15)
+            ax.tick_params(axis='both', which='major', labelsize=13)
+            if t == 4:
+                cbar = plt.colorbar(im, extend='both')
+                cbar.ax.tick_params(labelsize=15)
+        # 画像を保存 (各時間ステップごとにファイル名を変える)
+            fig.savefig(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}_t{t}.png', dpi = 450)
+
+        plt.close(fig)  # プロットを閉じる
+    # ani = animation.ArtistAnimation(fig, ims, interval=interval)    
+    # #ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.mp4', writer='ffmpeg') 
+    # ani.save(f'{base_dir}/Time_lapse/{formatted_control_input}_{anim_varname}.gif', writer='pillow')   
     return
+
 
 
 def anim_exp(base_dir, control_input):

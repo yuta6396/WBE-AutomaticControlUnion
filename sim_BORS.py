@@ -31,12 +31,12 @@ Alg_vec = ["BO", "RS"]
 num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-initial_design_numdata_vec = [3] #BOのRS回数
-max_iter_vec = [10, 20, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [1] #BOのRS回数
+max_iter_vec = [2]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
-trial_num = 10  #箱ひげ図作成時の繰り返し回数
-trial_base = 10
+trial_num = 1  #箱ひげ図作成時の繰り返し回数
+trial_base = 0
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
@@ -130,7 +130,8 @@ def sim(control_input):
     """
     制御入力決定後に実際にその入力値でシミュレーションする
     """
-    #control_input = [0, 0, 0] # 制御なしを見たいとき
+    control_input = [0, 0, 0] # 制御なしを見たいとき
+    control_input = [30.00, 23.74, -30.00]
     for pe in range(nofpe):
         init, output = prepare_files(pe)
         init = update_netcdf(init, output, pe, control_input)
@@ -174,7 +175,7 @@ def sim(control_input):
     # print(nc['V'].shape)
     # figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
     # figure_time_lapse(control_input, base_dir, MOMY_no_dat, MOMY_dat, nt, input_var)
-    # figure_time_lapse(control_input, base_dir, QHYD_no_dat, QHYD_dat, nt, "QHYD")
+    figure_time_lapse(control_input, base_dir, QHYD_no_dat, QHYD_dat, nt, "QHYD")
     # merged_history の作成
     # subprocess.run(["mpirun", "-n", "2", "./sno", "sno_R20kmDX500m.conf"])
     # anim_exp(base_dir, control_input)
