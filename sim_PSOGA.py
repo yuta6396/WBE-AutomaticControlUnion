@@ -23,7 +23,7 @@ PSOGAのシミュレーション
 
 #### User 設定変数 ##############
 
-input_var = "RHOT" # MOMY, RHOT, QVから選択
+input_var = "MOMY" # MOMY, RHOT, QVから選択
 max_input = bound
 Alg_vec = ["PSO", "GA"]
 num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
@@ -39,6 +39,7 @@ c1 = 2.0
 c2 = 2.0
 
 trial_num = 10  # 乱数種の数
+trial_base = 10
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
@@ -148,8 +149,8 @@ def sim(control_input):
         control_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
         no_control_odat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
     # 各時刻までの平均累積降水量をplot 
-    figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
-    figure_time_lapse(control_input, base_dir, no_control_odat, control_dat, nt, input_var)
+    # figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
+    # figure_time_lapse(control_input, base_dir, no_control_odat, control_dat, nt, input_var)
         
     sum_co=np.zeros(40) #制御後の累積降水量
     sum_no=np.zeros(40) #制御前の累積降水量
@@ -229,6 +230,7 @@ f.write(f"upper_bound={upper_bound}\n")
 f.write(f"alpha={alpha}\n")
 f.write(f"tournament_size={tournament_size}\n")
 f.write(f"trial_num={trial_num}\n")
+f.write(f"{trial_base =}")
 f.write(f"{dpi=}")
 f.write(f"\n{time_interval_sec=}")
 ################
@@ -254,7 +256,7 @@ with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA,  open(progress_fi
 
 
             ###PSO
-            random_reset(trial_i)
+            random_reset(trial_i+trial_base)
             # 入力次元と最小値・最大値の定義
             bounds_MOMY = [(-max_input, max_input)]*num_input_grid  # 探索範囲
 
@@ -274,7 +276,7 @@ with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA,  open(progress_fi
 
 
             ###GA
-            random_reset(trial_i)
+            random_reset(trial_i+trial_base)
             # パラメータの設定
             start = time.time()  # 現在時刻（処理開始前）を取得
             # Run GA with the black_box_function as the fitness function
