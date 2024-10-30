@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import matplotlib
 import subprocess
 from skopt import gp_minimize
+from skopt.acquisition import gaussian_ei
+from skopt.plots import plot_gaussian_process
 from skopt.space import Real
 # 時刻を計測するライブラリ
 import time
@@ -28,11 +30,11 @@ BORSのシミュレーション
 input_var = "MOMY" # MOMY, RHOT, QVから選択
 max_input = bound #20240830現在ではMOMY=30, RHOT=10, QV=0.1にしている
 Alg_vec = ["BO", "RS"]
-num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
+num_input_grid = 1 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-initial_design_numdata_vec = [1] #BOのRS回数
-max_iter_vec = [2]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [3] #BOのRS回数
+max_iter_vec = [12]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
 trial_num = 1  #箱ひげ図作成時の繰り返し回数
@@ -305,6 +307,35 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file
                 )           
             end = time.time()  # 現在時刻（処理完了後）を取得
             time_diff = end - start
+
+            model = result.models[-1]
+            x_values = np.linspace(-30, 30, 400).reshape(-1, 1)
+            acq_values = gaussian_ei(x_values, model, y_opt=np.min(result.func_vals))
+            BOf = 20
+
+            plt.figure(figsize=(8, 6))
+            ax = plot_gaussian_process(result)
+            legend = ax.legend(fontsize=16)
+            # 獲得関数を右Y軸で描画
+            ax2 = ax.twinx()  # 同じグラフに右側のY軸を追加
+            ax2.plot(x_values, acq_values, color='#c44e52', label=f"Acquisition Function")
+            ax2.set_ylabel('Acquisition Value', color='#c44e52', fontsize = 18)
+            ax2.tick_params(axis='y', labelcolor='#c44e52', labelsize = 18)
+            # plt.plot(x_values, acq_values, label=f"Acquisition Function", color="red")
+            # plt.scatter(result.x_iters, result.func_vals -80, color="green", zorder=10, label="Sampled Points")
+            # #plt.axvline(result.x[0], linestyle="--", color="black", label="Best Point")
+            # plt.xlabel("MOMY", fontsize=BOf)
+            # plt.ylabel("f(x) / Acquisition Value", fontsize=BOf)
+            # plt.tick_params(axis='both', which='major', labelsize=BOf)
+            # plt.legend(fontsize = BOf)
+            # plt.title(f"Objective Function and Acquisition Function", fontsize=BOf)
+            # X軸とY軸のラベルのフォントサイズを指定
+            ax.set_xlabel('x', fontsize=18)
+            ax.set_ylabel('Objective Value', fontsize=18)
+            ax.tick_params(axis='x', labelsize=18)  # X軸の目盛りフォントサイズ
+            ax.tick_params(axis='y', labelsize=18)  # Y軸の目盛りフォントサイズ
+            ax2.legend(loc='lower left', fontsize = 16)
+            plt.savefig(f"BO{exp_i=}_acquisition", dpi = 600)
             # 最適解の取得
             min_value = result.fun
             min_input = result.x
