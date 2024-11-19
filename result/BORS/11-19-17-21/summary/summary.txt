@@ -1,0 +1,17 @@
+
+BO_ratio_matrix = 
+[[nan]]
+RS_ratio_matrix = 
+[[nan]]
+Mean Accumulated PREC(%) 1 times; BBF=[3.]
+BO_vec=array([nan])
+RS_vec=array([nan])
+Median Accumulated PREC(%) 1 times; BBF=[3.]
+BO_vec=array([nan])
+RS_vec=array([nan])
+Min Accumulated PREC(%) 1 times; BBF=[3.]
+BO_vec=array([nan])
+RS_vec=array([nan])
+Max Accumulated PREC(%) 1 times; BBF=[3.]
+BO_vec=array([nan])
+RS_vec=array([nan])

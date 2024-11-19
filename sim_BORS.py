@@ -33,8 +33,8 @@ Alg_vec = ["BO", "RS"]
 num_input_grid = 1 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-initial_design_numdata_vec = [3] #BOのRS回数
-max_iter_vec = [12]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [1] #BOのRS回数
+max_iter_vec = [1]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
 trial_num = 1  #箱ひげ図作成時の繰り返し回数
@@ -190,7 +190,7 @@ def sim(control_input):
                 sum_co[y_i] += dat[t_j,0,y_i,0]*time_interval_sec
                 sum_no[y_i] += odat[t_j,0,y_i,0]*time_interval_sec
     #print(sum_co-sum_no)
-    return sum_co, sum_no
+    return sum_co, sum_no, odat
 
 def black_box_function(control_input):
     """
@@ -347,7 +347,12 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file
             f_BO.write(f"\n入力値:{min_input}")
             f_BO.write(f"\n経過時間:{time_diff}sec")
             f_BO.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
-            sum_co, sum_no = sim(min_input)
+            sum_co, sum_no, prec = sim(min_input)
+            f_BO.write("\n")
+            for t in range(12):
+                for y_i in range(40):
+                    f_BO.write(f"{prec[t,0,y_i,0]}, ")
+                f_BO.write("\n")
             SUM_no = sum_no
             BO_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
             BO_time_matrix[exp_i, trial_i] = time_diff
@@ -370,7 +375,7 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file
             f_RS.write(f"\n入力値:{best_params}")
             f_RS.write(f"\n経過時間:{time_diff}sec")
             f_RS.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
-            sum_co, sum_no = sim(best_params)
+            sum_co, sum_no, prec = sim(best_params)
             sum_RS_MOMY = sum_co
             RS_ratio_matrix[exp_i, trial_i] =  calculate_PREC_rate(sum_co, sum_no)
             RS_time_matrix[exp_i, trial_i] = time_diff
