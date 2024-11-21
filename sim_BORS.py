@@ -30,14 +30,14 @@ BORSのシミュレーション
 input_var = "MOMY" # MOMY, RHOT, QVから選択
 max_input = bound #20240830現在ではMOMY=30, RHOT=10, QV=0.1にしている
 Alg_vec = ["BO", "RS"]
-num_input_grid = 1 #y=20~20+num_input_grid-1まで制御
+num_input_grid = 2 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-initial_design_numdata_vec = [1] #BOのRS回数
-max_iter_vec = [1]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [10] #BOのRS回数
+max_iter_vec = [15, 15, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
-trial_num = 1  #箱ひげ図作成時の繰り返し回数
+trial_num = 10  #箱ひげ図作成時の繰り返し回数
 trial_base = 0
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
@@ -45,7 +45,8 @@ colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"result/BORS/{current_time}/"
+base_dir = f"result/BORS/{Opt_purpose}_{input_var}{bound}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
+
 
 cnt_vec = np.zeros(len(max_iter_vec))
 for i in range(len(max_iter_vec)):
@@ -132,8 +133,6 @@ def sim(control_input):
     """
     制御入力決定後に実際にその入力値でシミュレーションする
     """
-    control_input = [0, 0, 0] # 制御なしを見たいとき
-    control_input = [30.00, 23.74, -30.00]
     for pe in range(nofpe):
         init, output = prepare_files(pe)
         init = update_netcdf(init, output, pe, control_input)
@@ -261,12 +260,10 @@ RS_file = os.path.join(base_dir, "summary", f"{Alg_vec[1]}.txt")
 progress_file = os.path.join(base_dir, "progress.txt")
 
 
-with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file, 'w') as f_progress:
+with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
     for trial_i in range(trial_num):
-        f_progress.write(f"\n\n{trial_i=}\n")
         cnt_base = 0
         for exp_i in range(len(max_iter_vec)):
-            f_progress.write(f"{exp_i=},  ")
             if exp_i > 0:
                 cnt_base  = cnt_vec[exp_i - 1]
 
@@ -308,34 +305,34 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file
             end = time.time()  # 現在時刻（処理完了後）を取得
             time_diff = end - start
 
-            model = result.models[-1]
-            x_values = np.linspace(-30, 30, 400).reshape(-1, 1)
-            acq_values = gaussian_ei(x_values, model, y_opt=np.min(result.func_vals))
-            BOf = 20
+            # model = result.models[-1]
+            # x_values = np.linspace(-30, 30, 400).reshape(-1, 1)
+            # acq_values = gaussian_ei(x_values, model, y_opt=np.min(result.func_vals))
+            # BOf = 20
 
-            plt.figure(figsize=(8, 6))
-            ax = plot_gaussian_process(result)
-            legend = ax.legend(fontsize=16)
-            # 獲得関数を右Y軸で描画
-            ax2 = ax.twinx()  # 同じグラフに右側のY軸を追加
-            ax2.plot(x_values, acq_values, color='#c44e52', label=f"Acquisition Function")
-            ax2.set_ylabel('Acquisition Value', color='#c44e52', fontsize = 18)
-            ax2.tick_params(axis='y', labelcolor='#c44e52', labelsize = 18)
-            # plt.plot(x_values, acq_values, label=f"Acquisition Function", color="red")
-            # plt.scatter(result.x_iters, result.func_vals -80, color="green", zorder=10, label="Sampled Points")
-            # #plt.axvline(result.x[0], linestyle="--", color="black", label="Best Point")
-            # plt.xlabel("MOMY", fontsize=BOf)
-            # plt.ylabel("f(x) / Acquisition Value", fontsize=BOf)
-            # plt.tick_params(axis='both', which='major', labelsize=BOf)
-            # plt.legend(fontsize = BOf)
-            # plt.title(f"Objective Function and Acquisition Function", fontsize=BOf)
-            # X軸とY軸のラベルのフォントサイズを指定
-            ax.set_xlabel('x', fontsize=18)
-            ax.set_ylabel('Objective Value', fontsize=18)
-            ax.tick_params(axis='x', labelsize=18)  # X軸の目盛りフォントサイズ
-            ax.tick_params(axis='y', labelsize=18)  # Y軸の目盛りフォントサイズ
-            ax2.legend(loc='lower left', fontsize = 16)
-            plt.savefig(f"BO{exp_i=}_acquisition", dpi = 600)
+            # plt.figure(figsize=(8, 6))
+            # ax = plot_gaussian_process(result)
+            # legend = ax.legend(fontsize=16)
+            # # 獲得関数を右Y軸で描画
+            # ax2 = ax.twinx()  # 同じグラフに右側のY軸を追加
+            # ax2.plot(x_values, acq_values, color='#c44e52', label=f"Acquisition Function")
+            # ax2.set_ylabel('Acquisition Value', color='#c44e52', fontsize = 18)
+            # ax2.tick_params(axis='y', labelcolor='#c44e52', labelsize = 18)
+            # # plt.plot(x_values, acq_values, label=f"Acquisition Function", color="red")
+            # # plt.scatter(result.x_iters, result.func_vals -80, color="green", zorder=10, label="Sampled Points")
+            # # #plt.axvline(result.x[0], linestyle="--", color="black", label="Best Point")
+            # # plt.xlabel("MOMY", fontsize=BOf)
+            # # plt.ylabel("f(x) / Acquisition Value", fontsize=BOf)
+            # # plt.tick_params(axis='both', which='major', labelsize=BOf)
+            # # plt.legend(fontsize = BOf)
+            # # plt.title(f"Objective Function and Acquisition Function", fontsize=BOf)
+            # # X軸とY軸のラベルのフォントサイズを指定
+            # ax.set_xlabel('x', fontsize=18)
+            # ax.set_ylabel('Objective Value', fontsize=18)
+            # ax.tick_params(axis='x', labelsize=18)  # X軸の目盛りフォントサイズ
+            # ax.tick_params(axis='y', labelsize=18)  # Y軸の目盛りフォントサイズ
+            # ax2.legend(loc='lower left', fontsize = 16)
+            # plt.savefig(f"BO{exp_i=}_acquisition", dpi = 600)
             # 最適解の取得
             min_value = result.fun
             min_input = result.x
@@ -348,11 +345,11 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS,  open(progress_file
             f_BO.write(f"\n経過時間:{time_diff}sec")
             f_BO.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
             sum_co, sum_no, prec = sim(min_input)
-            f_BO.write("\n")
-            for t in range(12):
-                for y_i in range(40):
-                    f_BO.write(f"{prec[t,0,y_i,0]}, ")
-                f_BO.write("\n")
+            # f_BO.write("\n")
+            # for t in range(12):
+            #     for y_i in range(40):
+            #         f_BO.write(f"{prec[t,0,y_i,0]}, ")
+            #     f_BO.write("\n")
             SUM_no = sum_no
             BO_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
             BO_time_matrix[exp_i, trial_i] = time_diff

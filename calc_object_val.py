@@ -1,4 +1,4 @@
-
+import numpy as np
 def calculate_objective_func_val(sum_co, Opt_purpose:str):
     """
     得られた各地点の累積降水量予測値(各Y-grid)から目的関数の値を導出する
