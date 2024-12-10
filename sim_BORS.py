@@ -33,7 +33,7 @@ Alg_vec = ["BO", "RS"]
 num_input_grid = 2 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-initial_design_numdata_vec = [10] #BOのRS回数
+initial_design_numdata_vec = [2] #BOのRS回数
 max_iter_vec = [15, 15, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
