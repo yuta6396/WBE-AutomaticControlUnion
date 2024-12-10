@@ -10,10 +10,11 @@ import pytz
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from config import bound, time_interval_sec, w_max, w_min, gene_length, crossover_rate, mutation_rate, lower_bound, upper_bound, alpha, tournament_size
+from config import bound, time_interval_sec, w_max, w_min,  crossover_rate, mutation_rate, lower_bound, upper_bound, alpha, tournament_size
 from optimize import *
 from analysis import *
 from make_directory import make_directory
+from calc_object_val import calculate_objective_func_val
 
 matplotlib.use('Agg')
 
@@ -27,9 +28,10 @@ input_var = "MOMY" # MOMY, RHOT, QVから選択
 max_input = bound
 Alg_vec = ["PSO", "GA"]
 num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
+gene_length = num_input_grid
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-particles_vec = [2]           # 粒子数
+particles_vec = [5]           # 粒子数
 iterations_vec = [2]        # 繰り返し回数
 pop_size_vec = particles_vec  # Population size
 num_generations_vec = iterations_vec  # Number of generations
@@ -38,15 +40,16 @@ num_generations_vec = iterations_vec  # Number of generations
 c1 = 2.0
 c2 = 2.0
 
-trial_num = 10  # 乱数種の数
-trial_base = 10
+trial_num = 1  # 乱数種の数
+trial_base = 0
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"result/PSOGA/{current_time}/"
+base_dir = f"result/PSOGA/{Opt_purpose}_{input_var}{bound}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
+
 cnt_vec = np.zeros(len(particles_vec))
 for i in range(len(particles_vec)):
      cnt_vec[i] = int(particles_vec[i])*int(iterations_vec[i])
@@ -271,7 +274,7 @@ with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA,  open(progress_fi
 
             sum_co, sum_no = sim(best_position)
             calculate_PREC_rate(sum_co, sum_no)
-            PSO_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
+            PSO_ratio_matrix[exp_i, trial_i] = calculate_objective_func_val(sum_co, Opt_purpose)
             PSO_time_matrix[exp_i, trial_i] = time_diff
 
 
@@ -293,7 +296,7 @@ with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA,  open(progress_fi
             f_GA.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
 
             sum_co, sum_no = sim(best_individual)
-            GA_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
+            GA_ratio_matrix[exp_i, trial_i] = calculate_objective_func_val(sum_co, Opt_purpose)
             GA_time_matrix[exp_i, trial_i] = time_diff
 
 

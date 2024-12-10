@@ -1,7 +1,7 @@
 import numpy as np
 import random
 
-from config import w_max, w_min, gene_length, crossover_rate, mutation_rate, lower_bound, upper_bound, alpha, tournament_size
+from config import w_max, w_min, crossover_rate, mutation_rate, lower_bound, upper_bound, alpha, tournament_size
 
 
 
