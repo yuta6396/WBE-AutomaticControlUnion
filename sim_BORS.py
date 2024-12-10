@@ -18,7 +18,7 @@ from optimize import random_search
 from analysis import *
 from make_directory import make_directory
 from config import time_interval_sec, bound
-
+from calc_object_val import calculate_objective_func_val
 matplotlib.use('Agg')
 
 """
@@ -30,11 +30,11 @@ BORSのシミュレーション
 input_var = "MOMY" # MOMY, RHOT, QVから選択
 max_input = bound #20240830現在ではMOMY=30, RHOT=10, QV=0.1にしている
 Alg_vec = ["BO", "RS"]
-num_input_grid = 2 #y=20~20+num_input_grid-1まで制御
+num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-initial_design_numdata_vec = [10] #BOのRS回数
-max_iter_vec = [15, 15, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [3] #BOのRS回数
+max_iter_vec = [10, 20, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
 trial_num = 10  #箱ひげ図作成時の繰り返し回数
@@ -120,7 +120,7 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
                 var = src[name][:]
                 if pe == 1:
                     for Ygrid_i in range(num_input_grid):
-                        var[Ygrid_i, 0, 0] += input_values[Ygrid_i]  # (y, x, z)
+                        var[10+Ygrid_i, 0, 0] += input_values[Ygrid_i]  # (y, x, z)##please delete 10+
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]
@@ -158,25 +158,25 @@ def sim(control_input):
         if pe == 0:
             dat = np.zeros((nt, nz, fny*ny, fnx*nx))
             odat = np.zeros((nt, nz, fny*ny, fnx*nx))
-            MOMY_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
-            MOMY_no_dat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
-            QHYD_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
-            QHYD_no_dat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
+            # MOMY_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
+            # MOMY_no_dat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
+            # QHYD_dat = np.zeros((nt, nz, fny*ny, fnx*nx))
+            # QHYD_no_dat = np.zeros((nt, nz, fny*ny, fnx*nx)) 
         # print(nc.variables.keys()) 
         dat[:, 0, gy1:gy2, gx1:gx2] = nc[varname][:]
         odat[:, 0, gy1:gy2, gx1:gx2] = onc[varname][:]
         # MOMYの時.ncには'V'で格納される
-        MOMY_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
-        MOMY_no_dat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
+        # MOMY_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
+        # MOMY_no_dat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
 
-        QHYD_dat[:, :, gy1:gy2, gx1:gx2] = nc['QHYD'][:]
-        QHYD_no_dat[:, :, gy1:gy2, gx1:gx2] = onc['QHYD'][:]
+        # QHYD_dat[:, :, gy1:gy2, gx1:gx2] = nc['QHYD'][:]
+        # QHYD_no_dat[:, :, gy1:gy2, gx1:gx2] = onc['QHYD'][:]
     # 各時刻までの平均累積降水量をplot 
     # print(nc[varname].shape)
     # print(nc['V'].shape)
     # figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
     # figure_time_lapse(control_input, base_dir, MOMY_no_dat, MOMY_dat, nt, input_var)
-    figure_time_lapse(control_input, base_dir, QHYD_no_dat, QHYD_dat, nt, "QHYD")
+    #figure_time_lapse(control_input, base_dir, QHYD_no_dat, QHYD_dat, nt, "QHYD")
     # merged_history の作成
     # subprocess.run(["mpirun", "-n", "2", "./sno", "sno_R20kmDX500m.conf"])
     # anim_exp(base_dir, control_input)
@@ -189,7 +189,7 @@ def sim(control_input):
                 sum_co[y_i] += dat[t_j,0,y_i,0]*time_interval_sec
                 sum_no[y_i] += odat[t_j,0,y_i,0]*time_interval_sec
     #print(sum_co-sum_no)
-    return sum_co, sum_no, odat
+    return sum_co, sum_no
 
 def black_box_function(control_input):
     """
@@ -344,14 +344,13 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
             f_BO.write(f"\n入力値:{min_input}")
             f_BO.write(f"\n経過時間:{time_diff}sec")
             f_BO.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
-            sum_co, sum_no, prec = sim(min_input)
+            sum_co, sum_no = sim(min_input)
             # f_BO.write("\n")
             # for t in range(12):
             #     for y_i in range(40):
             #         f_BO.write(f"{prec[t,0,y_i,0]}, ")
             #     f_BO.write("\n")
-            SUM_no = sum_no
-            BO_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
+            BO_ratio_matrix[exp_i, trial_i] = calculate_objective_func_val(sum_co, Opt_purpose)
             BO_time_matrix[exp_i, trial_i] = time_diff
 
 
@@ -372,9 +371,9 @@ with open(BO_file, 'w') as f_BO, open(RS_file, 'w') as f_RS:
             f_RS.write(f"\n入力値:{best_params}")
             f_RS.write(f"\n経過時間:{time_diff}sec")
             f_RS.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
-            sum_co, sum_no, prec = sim(best_params)
+            sum_co, sum_no = sim(best_params)
             sum_RS_MOMY = sum_co
-            RS_ratio_matrix[exp_i, trial_i] =  calculate_PREC_rate(sum_co, sum_no)
+            RS_ratio_matrix[exp_i, trial_i] =  calculate_objective_func_val(sum_co, Opt_purpose)
             RS_time_matrix[exp_i, trial_i] = time_diff
 
 #シミュレーション結果の可視化

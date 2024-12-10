@@ -10,11 +10,11 @@ import pytz
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from config import bound, time_interval_sec, w_max, w_min, gene_length, crossover_rate, mutation_rate, lower_bound, upper_bound, alpha, tournament_size
+from config import bound, time_interval_sec, w_max, w_min, crossover_rate, mutation_rate, lower_bound, upper_bound, alpha, tournament_size
 from optimize import *
 from analysis import *
 from make_directory import make_directory
-
+from calc_object_val import calculate_objective_func_val
 matplotlib.use('Agg')
 
 """
@@ -26,11 +26,12 @@ PSOGAのシミュレーション
 input_var = "MOMY" # MOMY, RHOT, QVから選択
 max_input = bound
 Alg_vec = ["PSO", "GA"]
-num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
+num_input_grid = 2 #y=20~20+num_input_grid-1まで制御
+gene_length = num_input_grid
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-particles_vec = [2]           # 粒子数
-iterations_vec = [2]        # 繰り返し回数
+particles_vec = [20,20, 20]           # 粒子数
+iterations_vec = [5, 7, 10]        # 繰り返し回数
 pop_size_vec = particles_vec  # Population size
 num_generations_vec = iterations_vec  # Number of generations
 
@@ -39,14 +40,14 @@ c1 = 2.0
 c2 = 2.0
 
 trial_num = 10  # 乱数種の数
-trial_base = 10
+trial_base = 0
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
 colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"result/PSOGA/{current_time}/"
+base_dir = f"result/PSOGA/{Opt_purpose}_{input_var}{bound}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
 cnt_vec = np.zeros(len(particles_vec))
 for i in range(len(particles_vec)):
      cnt_vec[i] = int(particles_vec[i])*int(iterations_vec[i])
@@ -146,8 +147,8 @@ def sim(control_input):
         dat[:, 0, gy1:gy2, gx1:gx2] = nc[varname][:]
         odat[:, 0, gy1:gy2, gx1:gx2] = onc[varname][:]
         # MOMYの時.ncには'V'で格納される
-        control_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
-        no_control_odat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
+        # control_dat[:, :, gy1:gy2, gx1:gx2] = nc['V'][:]
+        # no_control_odat[:, :, gy1:gy2, gx1:gx2] = onc['V'][:]
     # 各時刻までの平均累積降水量をplot 
     # figure_time_lapse(control_input, base_dir, odat, dat, nt, varname)
     # figure_time_lapse(control_input, base_dir, no_control_odat, control_dat, nt, input_var)
@@ -165,6 +166,7 @@ def black_box_function(control_input):
     """
     制御入力値列を入れると、制御結果となる目的関数値を返す
     """
+    print(control_input)
     for pe in range(nofpe):
         init, output = prepare_files(pe)
         init = update_netcdf(init, output, pe, control_input)
@@ -270,8 +272,7 @@ with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA,  open(progress_fi
             f_PSO.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
 
             sum_co, sum_no = sim(best_position)
-            calculate_PREC_rate(sum_co, sum_no)
-            PSO_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
+            PSO_ratio_matrix[exp_i, trial_i] = calculate_objective_func_val(sum_co, Opt_purpose)
             PSO_time_matrix[exp_i, trial_i] = time_diff
 
 
@@ -293,7 +294,7 @@ with open(PSO_file, 'w') as f_PSO, open(GA_file, 'w') as f_GA,  open(progress_fi
             f_GA.write(f"\nnum_evaluation of BBF = {cnt_vec[exp_i]}")
 
             sum_co, sum_no = sim(best_individual)
-            GA_ratio_matrix[exp_i, trial_i] = calculate_PREC_rate(sum_co, sum_no)
+            GA_ratio_matrix[exp_i, trial_i] = calculate_objective_func_val(sum_co, Opt_purpose)
             GA_time_matrix[exp_i, trial_i] = time_diff
 
 

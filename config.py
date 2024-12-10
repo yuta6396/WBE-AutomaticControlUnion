@@ -6,7 +6,7 @@ w_min = 0.4
 
 # GA Parameters
 
-gene_length = 3  # Number of genes per individual 制御入力grid数
+#gene_length = 3  # Number of genes per individual 制御入力grid数
 crossover_rate = 0.8  # Crossover rate
 mutation_rate = 0.05  # Mutation rate
 lower_bound = -bound  # Lower bound of gene values
