@@ -30,7 +30,7 @@ BORSのシミュレーション
 input_var = "MOMY" # MOMY, RHOT, QVから選択
 max_input = bound #20240830現在ではMOMY=30, RHOT=10, QV=0.1にしている
 Alg_vec = ["BO", "RS"]
-num_input_grid = 3 #y=20~20+num_input_grid-1まで制御
+num_input_grid = 2 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
 initial_design_numdata_vec = [3] #BOのRS回数
@@ -45,7 +45,7 @@ colors6  = ['#4c72b0', '#f28e2b', '#55a868', '#c44e52'] # 論文用の色
 ###############################
 jst = pytz.timezone('Asia/Tokyo')# 日本時間のタイムゾーンを設定
 current_time = datetime.now(jst).strftime("%m-%d-%H-%M")
-base_dir = f"result/BORS/{Opt_purpose}_{input_var}{bound}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
+base_dir = f"test_result/BORS/{Opt_purpose}_{input_var}{bound}_{trial_base}-{trial_base+trial_num -1}_{current_time}/"
 
 
 cnt_vec = np.zeros(len(max_iter_vec))
@@ -118,9 +118,9 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
             dst[name].setncatts(src[name].__dict__)
             if name == input_var:
                 var = src[name][:]
-                if pe == 1:
+                if pe == 1:  # pe ==1 =>20~39
                     for Ygrid_i in range(num_input_grid):
-                        var[10+Ygrid_i, 0, 0] += input_values[Ygrid_i]  # (y, x, z)##please delete 10+
+                        var[Ygrid_i+3, 0, 0] += input_values[Ygrid_i]  
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]

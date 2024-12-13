@@ -106,7 +106,7 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
                 var = src[name][:]
                 if pe == 1:
                     for Ygrid_i in range(num_input_grid):
-                        var[Ygrid_i, 0, 0] += input_values[Ygrid_i]  # (y, x, z)
+                        var[Ygrid_i+3, 0, 0] += input_values[Ygrid_i]  # (y, x, z)
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]
@@ -172,10 +172,10 @@ def grid_search(objective_function):
         for y_21 in range(-bound, bound+1):
             print(f"{y_20}, {y_21}")
             score = objective_function([y_20, y_21])
-            if Opt_purpose == "MinSum":
-                score = 100*score/96.50 # 大体で制御なし⇒100%
-            elif Opt_purpose == "MinMax":
-                score = 100*score/6.2
+            # if Opt_purpose == "MinSum":
+            #     score = 100*score/96.50 # 大体で制御なし⇒100%
+            # elif Opt_purpose == "MinMax":
+            #     score = 100*score/6.2
             print(score)
             results.append({'Y20': y_20, 'Y21': y_21, 'score': score})
 

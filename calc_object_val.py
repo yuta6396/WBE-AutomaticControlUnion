@@ -6,6 +6,7 @@ def calculate_objective_func_val(sum_co, Opt_purpose:str):
     represent_prec = 0
     if Opt_purpose == "MinSum" or Opt_purpose == "MaxSum":
         represent_prec = np.sum(sum_co)*100/96.50
+        print(Opt_purpose)
         print(represent_prec)
 
     elif Opt_purpose == "MinMax" or Opt_purpose == "MaxMax":

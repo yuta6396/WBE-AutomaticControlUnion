@@ -30,8 +30,8 @@ num_input_grid = 2 #y=20~20+num_input_grid-1まで制御
 gene_length = num_input_grid
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-particles_vec = [20,20, 20]           # 粒子数
-iterations_vec = [5, 7, 10]        # 繰り返し回数
+particles_vec = [5, 10, 10, 10, 10, 10]           # 粒子数
+iterations_vec = [2, 3, 5, 10, 15, 20]        # 繰り返し回数
 pop_size_vec = particles_vec  # Population size
 num_generations_vec = iterations_vec  # Number of generations
 
@@ -103,7 +103,7 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
                 var = src[name][:]
                 if pe == 1:
                     for Ygrid_i in range(num_input_grid):
-                        var[Ygrid_i, 0, 0] += input_values[Ygrid_i]  # (y, x, z)
+                        var[Ygrid_i+3, 0, 0] += input_values[Ygrid_i]  # (y, x, z)
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]
