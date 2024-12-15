@@ -1,0 +1,12 @@
+
+cnt=1: params=[-30, -30],  best_score=92.8692705861803
+cnt=3: params=[-30, -28],  best_score=92.81789778940504
+cnt=8: params=[-30, -23],  best_score=91.93350733295063
+cnt=10: params=[-30, -21],  best_score=89.16471137081122
+cnt=11: params=[-30, -20],  best_score=86.53370569966991
+cnt=13: params=[-30, -18],  best_score=85.56827725678245
+cnt=14: params=[-30, -17],  best_score=84.18289704854023
+cnt=15: params=[-30, -16],  best_score=82.38973153590524
+cnt=75: params=[-29, -17],  best_score=82.34854723086993
+cnt=134: params=[-28, -19],  best_score=82.32713423395958
+Best parameters: [-28, -19]

@@ -28,7 +28,7 @@ BORSのシミュレーション
 
 #### User 設定変数 ##############
 
-input_var = "MOMY" # MOMY, RHOT, QVから選択
+input_var = "RHOT" # MOMY, RHOT, QVから選択
 input_size = bound # 変更の余地あり
 Alg_vec = ["GS"]
 num_input_grid = 2 # ある一つの地点を制御
@@ -106,7 +106,7 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
                 var = src[name][:]
                 if pe == 1:
                     for Ygrid_i in range(num_input_grid):
-                        var[Ygrid_i+3, 0, 0] += input_values[Ygrid_i]  # (y, x, z)
+                        var[Ygrid_i, 0, 0] += input_values[Ygrid_i]  # (y, x, z)
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]

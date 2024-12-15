@@ -27,14 +27,14 @@ BORSのシミュレーション
 
 #### User 設定変数 ##############
 
-input_var = "MOMY" # MOMY, RHOT, QVから選択
+input_var = "RHOT" # MOMY, RHOT, QVから選択
 max_input = bound #20240830現在ではMOMY=30, RHOT=10, QV=0.1にしている
 Alg_vec = ["BO", "RS"]
 num_input_grid = 2 #y=20~20+num_input_grid-1まで制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
-initial_design_numdata_vec = [3] #BOのRS回数
-max_iter_vec = [10, 20, 20, 50, 50, 50]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
+initial_design_numdata_vec = [5] #BOのRS回数
+max_iter_vec = [10,10, 10, 10, 10, 25, 25]            #{10, 20, 20, 50]=10, 30, 50, 100と同値
 random_iter_vec = max_iter_vec
 
 trial_num = 10  #箱ひげ図作成時の繰り返し回数
@@ -120,7 +120,7 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
                 var = src[name][:]
                 if pe == 1:  # pe ==1 =>20~39
                     for Ygrid_i in range(num_input_grid):
-                        var[Ygrid_i+3, 0, 0] += input_values[Ygrid_i]  
+                        var[Ygrid_i+6, 0, 0] += input_values[Ygrid_i]  
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]

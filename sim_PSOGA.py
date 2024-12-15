@@ -103,7 +103,7 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
                 var = src[name][:]
                 if pe == 1:
                     for Ygrid_i in range(num_input_grid):
-                        var[Ygrid_i+3, 0, 0] += input_values[Ygrid_i]  # (y, x, z)
+                        var[Ygrid_i+6, 0, 0] += input_values[Ygrid_i]  # (y, x, z)
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]

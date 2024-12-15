@@ -1,0 +1,10 @@
+input_var =RHOT
+max_input =10
+Alg_vec =['BO', 'RS']
+num_input_grid =2
+Opt_purpose =MinSum
+initial_design_numdata_vec = [5]
+max_iter_vec = [10, 10, 10, 10, 10, 25, 25]
+random_iter_vec = [10, 10, 10, 10, 10, 25, 25]
+trial_num = 10
+time_interval_sec=300

@@ -1,0 +1,8 @@
+
+cnt=1: params=[-10, -10],  best_score=97.43318941261394
+cnt=2: params=[-10, -9],  best_score=97.26939479537974
+cnt=3: params=[-10, -8],  best_score=97.25089708802774
+cnt=39: params=[-9, 7],  best_score=95.86926831458739
+cnt=82: params=[-7, 8],  best_score=95.75837931054792
+cnt=103: params=[-6, 8],  best_score=94.88418617143017
+Best parameters: [-6, 8]

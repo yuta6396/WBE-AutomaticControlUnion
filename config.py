@@ -1,5 +1,5 @@
 time_interval_sec = 300 # 何秒おきに計算するか  .confのFILE_HISTORY_DEFAULT_TINTERVALと同値にする
-bound = 30 #20240830現在ではMOMY=30, RHOT=10, QV=0.1にしている
+bound = 10 #20240830現在ではMOMY=30, RHOT=10, QV=0.1にしている
 #PSO LDWIM
 w_max = 0.9
 w_min = 0.4
