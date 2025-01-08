@@ -1,0 +1,21 @@
+{
+    "max_input": 100,
+    "bounds": [
+        {
+            "type": "int",
+            "low": 0,
+            "up": 39
+        },
+        {
+            "type": "float",
+            "low": 0,
+            "up": 96
+        },
+        {
+            "type": "float",
+            "low": -30,
+            "up": 30
+        }
+    ],
+    "output_file": "candidates.txt"
+}

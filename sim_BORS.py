@@ -118,6 +118,7 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
             dst[name].setncatts(src[name].__dict__)
             if name == input_var:
                 var = src[name][:]
+                ptint(var.shape())
                 if pe == 1:  # pe ==1 =>20~39
                     for Ygrid_i in range(num_input_grid):
                         var[Ygrid_i+6, 0, 0] += input_values[Ygrid_i]  

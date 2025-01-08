@@ -1,0 +1,7 @@
+
+y_i=0: best_score=100.26840439476558
+y_i=1: best_score=100.19202490450849
+y_i=2: best_score=100.18172136137935
+y_i=25: best_score=98.96140930914645
+y_i=26: best_score=98.92488379904022
+Best parameters: 26

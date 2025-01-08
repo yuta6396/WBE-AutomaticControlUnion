@@ -20,6 +20,7 @@ from make_directory import make_directory
 from config import time_interval_sec, bound
 from calc_object_val import calculate_objective_func_val
 
+import requests
 matplotlib.use('Agg')
 
 """
@@ -28,10 +29,10 @@ BORSのシミュレーション
 
 #### User 設定変数 ##############
 
-input_var = "RHOT" # MOMY, RHOT, QVから選択
+input_var = "MOMY" # MOMY, RHOT, QVから選択
 input_size = bound # 変更の余地あり
 Alg_vec = ["GS"]
-num_input_grid = 2 # ある一つの地点を制御
+num_input_grid = 2 # ある2つの地点を制御
 Opt_purpose = "MinSum" #MinSum, MinMax, MaxSum, MaxMinから選択
 
 dpi = 75 # 画像の解像度　スクリーンのみなら75以上　印刷用なら300以上
@@ -105,8 +106,9 @@ def update_netcdf(init: str, output: str, pe: int, input_values):
             if name == input_var:
                 var = src[name][:]
                 if pe == 1:
+                    #print(var.shape)
                     for Ygrid_i in range(num_input_grid):
-                        var[Ygrid_i, 0, 0] += input_values[Ygrid_i]  # (y, x, z)
+                        var[Ygrid_i, 0, 5] += input_values[Ygrid_i]  # (y, x, z)
                 dst[name][:] = var
             else:
                 dst[name][:] = src[name][:]
@@ -160,7 +162,7 @@ def sim(control_input):
     return objective_val
 
 
-def grid_search(objective_function):
+def grid_search(objective_function, f):
     best_score = float('inf')
     best_params = None
     # 結果を保存するためのリスト
@@ -168,6 +170,8 @@ def grid_search(objective_function):
     
     # 各組み合わせについて評価
     cnt = 0
+    # for y_20 in range(-bound, ):
+    #     for y_21 in range(-10, 10, 0.5):
     for y_20 in range(-bound, bound+1):
         for y_21 in range(-bound, bound+1):
             print(f"{y_20}, {y_21}")
@@ -192,23 +196,73 @@ def grid_search(objective_function):
     return best_params, best_score, scores_pivot
 
 
-###実行
-dirname = f"test_result/GS/{Opt_purpose}_{input_var}{input_size}_{num_input_grid}grid{current_time}"
-os.makedirs(dirname, exist_ok=True)
-output_file_path = os.path.join(dirname, f'summary.txt')
-f = open(output_file_path, 'w')
+def main():
+    ###実行
+    dirname = f"test_result/GS/{Opt_purpose}_{input_var}{input_size}_{num_input_grid}grid{current_time}"
+    os.makedirs(dirname, exist_ok=True)
+    output_file_path = os.path.join(dirname, f'summary.txt')
+    f = open(output_file_path, 'w')
 
-# グリッドサーチの実行
-best_params, best_score, scores_pivot = grid_search(sim)
+    # グリッドサーチの実行
+    best_params, best_score, scores_pivot = grid_search(sim, f)
 
-f.write(f"\nBest parameters: {best_params}\n")
-print(f"Best score: {best_score}")
-# ヒートマップの描画
-plt.figure(figsize=(8, 6))
-sns.heatmap(scores_pivot, annot=False, cmap='viridis_r') # annot=Trueだと具体的な値表示
-plt.title(f'Grid Search Accumulated PREC (%) Input:{input_var}{input_size}')
-plt.xlabel('Y=21')
-plt.ylabel('Y=20')
-plt.savefig(f"{dirname}/heatmap.png", dpi = 300)
+    f.write(f"\nBest parameters: {best_params}\n")
+    print(f"Best score: {best_score}")
+    print("Z=5,Y=2021")  # 制御入力位置
+    # ヒートマップの描画
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(scores_pivot, annot=False, cmap='viridis_r') # annot=Trueだと具体的な値表示
+    plt.title(f'Grid Search Accumulated PREC (%) Input:{input_var}{input_size}')
+    plt.xlabel('Y=21')
+    plt.ylabel('Y=20')
+    plt.savefig(f"{dirname}/heatmap.png", dpi = 300)
 
-f.close()
+    f.close()
+
+
+def notify_slack(webhook_url, message, channel=None, username=None, icon_emoji=None):
+    """
+    Slackに通知を送信する関数。
+
+    :param webhook_url: SlackのWebhook URL
+    :param message: 送信するメッセージ
+    :param channel: メッセージを送信するチャンネル（オプション）
+    :param username: メッセージを送信するユーザー名（オプション）
+    :param icon_emoji: メッセージに表示する絵文字（オプション）
+    """
+    payload = {
+        "text": message
+    }
+
+    # オプションのパラメータを追加
+    if channel:
+        payload["channel"] = channel
+    if username:
+        payload["username"] = username
+    if icon_emoji:
+        payload["icon_emoji"] = icon_emoji
+
+    try:
+        response = requests.post(webhook_url, json=payload)
+        response.raise_for_status()  # エラーがあれば例外を発生させる
+        print("Slackへの通知が送信されました。")
+    except requests.exceptions.RequestException as e:
+        print(f"Slackへの通知に失敗しました: {e}")
+
+if __name__ == "__main__":
+    main()
+    # ここに取得したWebhook URLを設定
+    webhook_url =os.getenv("SLACK_WEBHOOK_URL") # export SLACK_WEBHOOK_URL="OOOO"したらOK
+
+    # 送信するメッセージを設定
+    message = "✅ GS.pyの処理が完了しました。"
+
+    # オプションでチャンネルやユーザー名、アイコン絵文字を設定
+    # 例:
+    # channel = "#general"
+    # username = "Notifier"
+    # icon_emoji = ":robot_face:"
+    # notify_slack(webhook_url, message, channel, username, icon_emoji)
+
+    # オプションを使用しない場合は以下のようにシンプルに呼び出せます
+    notify_slack(webhook_url, message, channel="webhook")

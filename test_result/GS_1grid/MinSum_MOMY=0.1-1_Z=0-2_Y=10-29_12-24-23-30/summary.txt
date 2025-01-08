@@ -1,0 +1,27 @@
+
+
+Z=0
+best_params=[10, 0]: best_score=99.99621169064777
+best_params=[11, 0]: best_score=99.99299001839228
+best_params=[15, 0]: best_score=99.96683383348996
+best_params=[16, 0]: best_score=99.91346766363166
+best_params=[17, 0]: best_score=99.83912261680604
+best_params=[18, 0]: best_score=99.77522318896386
+best_params=[19, 0]: best_score=99.77069686375242
+
+
+Z=1
+best_params=[10, 0]: best_score=99.9871983405591
+best_params=[13, 0]: best_score=99.9730996824699
+best_params=[14, 0]: best_score=99.90061916950263
+best_params=[15, 0]: best_score=99.87924208045506
+best_params=[26, 0]: best_score=99.871242636102
+
+
+Z=2
+best_params=[10, 0]: best_score=99.94401476585185
+best_params=[13, 0]: best_score=99.91367568649174
+best_params=[14, 0]: best_score=99.86740605377233
+best_params=[15, 0]: best_score=99.85064721431334
+
+Best parameters: [15, 0]

@@ -1,0 +1,4 @@
+
+best_params=[0, 0]: best_score=100.26840439476558
+best_params=[0, 1]: best_score=100.19202490450849
+best_params=[0, 2]: best_score=100.18172136137935

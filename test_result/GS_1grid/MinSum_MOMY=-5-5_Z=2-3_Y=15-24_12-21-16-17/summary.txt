@@ -1,0 +1,21 @@
+
+
+Z=2
+best_params=[15, 0]: best_score=98.92997861109436
+best_params=[20, 0]: best_score=98.53640920771346
+
+
+Z=3
+best_params=[15, 0]: best_score=98.91876559420838
+best_params=[16, 49]: best_score=98.80512274604784
+best_params=[16, 50]: best_score=98.67592508724843
+best_params=[19, 38]: best_score=98.67375992860357
+best_params=[19, 39]: best_score=98.57647253120768
+best_params=[19, 40]: best_score=98.46065250866829
+best_params=[19, 41]: best_score=98.30560461395643
+best_params=[19, 42]: best_score=98.21417749338038
+best_params=[19, 43]: best_score=98.1213420401973
+best_params=[19, 44]: best_score=98.06449318732287
+best_params=[19, 45]: best_score=98.0366474822677
+
+Best parameters: [19, 45]

@@ -1,0 +1,217 @@
+
+
+Z=0
+best_params=[15, 0]: best_score=107.46296268101395
+best_params=[15, 1]: best_score=106.85391569690478
+best_params=[15, 2]: best_score=106.64342727813806
+best_params=[15, 7]: best_score=106.20503327362512
+best_params=[15, 8]: best_score=105.62134232421332
+best_params=[15, 9]: best_score=105.19619324423368
+best_params=[15, 10]: best_score=104.87364829658702
+best_params=[15, 11]: best_score=104.10063740675184
+best_params=[15, 12]: best_score=103.82940462523504
+best_params=[15, 13]: best_score=103.4901640737397
+best_params=[15, 14]: best_score=103.1059536904258
+best_params=[15, 15]: best_score=102.51508786999149
+best_params=[15, 16]: best_score=102.3805641653806
+best_params=[17, 10]: best_score=101.96156827938721
+best_params=[17, 11]: best_score=101.39497989705917
+best_params=[17, 12]: best_score=99.76672754268864
+best_params=[17, 13]: best_score=99.18459456746578
+best_params=[18, 1]: best_score=97.68475613965283
+best_params=[18, 14]: best_score=96.37272736394284
+best_params=[18, 15]: best_score=95.15144855921315
+best_params=[18, 16]: best_score=94.08386211941344
+best_params=[19, 22]: best_score=93.58706062166652
+best_params=[19, 23]: best_score=93.20068715582346
+best_params=[20, 0]: best_score=91.72434807755248
+best_params=[20, 1]: best_score=91.00771258576764
+best_params=[20, 2]: best_score=88.93556287751025
+best_params=[20, 3]: best_score=87.7315909461766
+best_params=[22, 0]: best_score=82.1989956997589
+best_params=[23, 20]: best_score=81.77929376013634
+
+
+Z=1
+best_params=[15, 0]: best_score=94.83850831313997
+best_params=[15, 2]: best_score=93.86332895079786
+best_params=[15, 3]: best_score=93.07883816631801
+best_params=[15, 4]: best_score=92.97918262267136
+best_params=[16, 0]: best_score=91.88148585690712
+best_params=[16, 1]: best_score=91.20168274695978
+best_params=[16, 2]: best_score=91.07484720357098
+best_params=[16, 3]: best_score=90.71063190305605
+best_params=[16, 4]: best_score=90.5167461905444
+best_params=[19, 20]: best_score=90.0035219854586
+best_params=[19, 21]: best_score=89.47343748489345
+best_params=[19, 22]: best_score=88.88003615592781
+best_params=[21, 14]: best_score=88.40446001707372
+best_params=[21, 15]: best_score=88.19087080916727
+best_params=[22, 0]: best_score=79.65462043462702
+
+
+Z=2
+best_params=[15, 0]: best_score=100.86409462053588
+best_params=[15, 1]: best_score=100.79883196323637
+best_params=[15, 3]: best_score=100.71436433703956
+best_params=[15, 4]: best_score=100.5311037146701
+best_params=[15, 5]: best_score=100.40086402382967
+best_params=[15, 6]: best_score=100.1122190425678
+best_params=[15, 7]: best_score=99.77887518083831
+best_params=[15, 8]: best_score=99.46668975727965
+best_params=[15, 9]: best_score=99.16939585650167
+best_params=[15, 10]: best_score=98.7531637790623
+best_params=[15, 15]: best_score=98.67603377206078
+best_params=[15, 16]: best_score=98.46880664598694
+best_params=[15, 17]: best_score=98.17159706419498
+best_params=[15, 18]: best_score=97.84021371529437
+best_params=[15, 19]: best_score=97.44499993638074
+best_params=[15, 20]: best_score=97.07912254415346
+best_params=[15, 21]: best_score=96.80255336756774
+best_params=[15, 22]: best_score=96.71326817424436
+best_params=[15, 23]: best_score=96.50576272514665
+best_params=[15, 24]: best_score=96.37692507500377
+best_params=[15, 25]: best_score=96.349872198823
+best_params=[16, 0]: best_score=93.592008916039
+best_params=[16, 1]: best_score=93.24724648018787
+best_params=[16, 2]: best_score=92.6691168999589
+best_params=[16, 3]: best_score=92.04459197416975
+best_params=[16, 4]: best_score=91.71981051374483
+best_params=[16, 5]: best_score=91.05273893562388
+best_params=[16, 6]: best_score=90.5996652763057
+best_params=[16, 7]: best_score=90.41509228477862
+best_params=[17, 0]: best_score=88.63970065248887
+best_params=[18, 6]: best_score=87.99119703848173
+best_params=[18, 7]: best_score=86.8436751158698
+best_params=[18, 8]: best_score=85.93306591683253
+best_params=[24, 0]: best_score=84.82666242422917
+best_params=[24, 2]: best_score=84.37093493786749
+
+
+Z=3
+best_params=[15, 0]: best_score=93.47409053879039
+best_params=[15, 9]: best_score=93.30245078325866
+best_params=[18, 0]: best_score=92.69894145542742
+best_params=[18, 1]: best_score=92.43754483594685
+best_params=[18, 2]: best_score=92.41756624590354
+best_params=[18, 3]: best_score=92.08771286512153
+best_params=[18, 5]: best_score=91.68592972812519
+best_params=[19, 0]: best_score=85.31709916808764
+best_params=[19, 1]: best_score=85.10989650857202
+best_params=[19, 2]: best_score=84.48929720102409
+
+
+Z=4
+best_params=[15, 0]: best_score=100.52034323477659
+best_params=[15, 1]: best_score=100.49061161366924
+best_params=[15, 2]: best_score=100.46182072675023
+best_params=[15, 3]: best_score=100.40420715061785
+best_params=[15, 4]: best_score=100.0213024529463
+best_params=[15, 5]: best_score=99.73887579264967
+best_params=[15, 18]: best_score=99.62834968506216
+best_params=[15, 19]: best_score=99.54655576445691
+best_params=[16, 0]: best_score=94.9063037783139
+best_params=[16, 1]: best_score=94.68847129256963
+best_params=[16, 2]: best_score=94.52629997128933
+best_params=[16, 3]: best_score=94.50266634674118
+best_params=[16, 4]: best_score=94.40846692361731
+best_params=[16, 6]: best_score=93.92269372458232
+best_params=[16, 7]: best_score=93.78149658620751
+best_params=[16, 13]: best_score=93.7513577165987
+best_params=[16, 14]: best_score=93.10130431002598
+best_params=[16, 15]: best_score=92.76250651623305
+best_params=[16, 16]: best_score=92.74661901755351
+best_params=[16, 19]: best_score=92.71914860738981
+best_params=[16, 20]: best_score=92.7059184127827
+best_params=[17, 0]: best_score=88.14689111710202
+best_params=[17, 1]: best_score=87.53946800792842
+best_params=[17, 2]: best_score=87.20081708189068
+best_params=[17, 3]: best_score=87.07553157042595
+best_params=[20, 19]: best_score=86.96190295143555
+best_params=[20, 20]: best_score=85.66972873103325
+best_params=[20, 21]: best_score=84.71932104926086
+best_params=[20, 22]: best_score=83.61407899718337
+best_params=[20, 23]: best_score=82.61067541470138
+best_params=[20, 24]: best_score=81.61922524748533
+best_params=[20, 25]: best_score=80.89478493242895
+best_params=[21, 0]: best_score=62.86619380110388
+best_params=[21, 1]: best_score=60.62618805524653
+best_params=[21, 3]: best_score=59.8021988432444
+best_params=[21, 4]: best_score=58.50787503310459
+
+
+Z=5
+best_params=[15, 0]: best_score=92.1648162040452
+best_params=[15, 2]: best_score=92.04157159777213
+best_params=[15, 11]: best_score=92.0168184872792
+best_params=[15, 12]: best_score=91.91726988933932
+best_params=[15, 13]: best_score=91.77147527300322
+best_params=[16, 0]: best_score=91.36720588834525
+best_params=[16, 7]: best_score=90.75033444987056
+best_params=[16, 10]: best_score=90.54665719725699
+best_params=[16, 14]: best_score=90.47726629498649
+best_params=[16, 15]: best_score=90.18228933399762
+best_params=[17, 0]: best_score=90.05495554683273
+best_params=[20, 3]: best_score=88.78139324402771
+best_params=[20, 4]: best_score=83.05462648516644
+best_params=[20, 5]: best_score=76.531771205142
+best_params=[20, 6]: best_score=73.52471808210029
+best_params=[20, 7]: best_score=72.63481793123204
+best_params=[20, 8]: best_score=72.22970328182718
+best_params=[20, 9]: best_score=70.86482463653171
+best_params=[20, 10]: best_score=69.52554979496533
+best_params=[20, 11]: best_score=68.75764729672449
+best_params=[20, 12]: best_score=66.07234352914723
+best_params=[20, 13]: best_score=64.51935590722103
+
+
+Z=6
+best_params=[15, 0]: best_score=91.01266237425688
+best_params=[20, 0]: best_score=60.38641385244117
+
+
+Z=7
+best_params=[15, 0]: best_score=92.08525981279111
+best_params=[16, 0]: best_score=91.64472275567141
+best_params=[16, 1]: best_score=91.09180190408392
+best_params=[16, 2]: best_score=90.86066647569797
+best_params=[20, 0]: best_score=87.44557589501896
+best_params=[20, 1]: best_score=87.3937188094478
+best_params=[20, 13]: best_score=87.20366138330111
+best_params=[20, 14]: best_score=85.57088311122223
+best_params=[20, 15]: best_score=85.29823983244195
+best_params=[22, 0]: best_score=84.47035189903157
+best_params=[22, 1]: best_score=84.28189856749525
+
+
+Z=8
+best_params=[15, 0]: best_score=93.0526799791573
+best_params=[15, 1]: best_score=93.0375059807048
+best_params=[21, 0]: best_score=92.644831755142
+best_params=[22, 1]: best_score=92.376954858879
+best_params=[22, 3]: best_score=92.33557605055155
+best_params=[22, 18]: best_score=92.2299210788543
+best_params=[22, 19]: best_score=92.05025307817037
+best_params=[23, 0]: best_score=89.91729518755685
+best_params=[23, 2]: best_score=89.90305886264028
+best_params=[23, 4]: best_score=89.57999092792036
+best_params=[24, 0]: best_score=89.38045493385034
+
+
+Z=9
+best_params=[15, 0]: best_score=94.9894843260701
+best_params=[15, 5]: best_score=94.78117914811652
+best_params=[15, 6]: best_score=94.65201034653332
+best_params=[20, 0]: best_score=92.63344352386027
+best_params=[21, 0]: best_score=91.39421451195403
+best_params=[23, 14]: best_score=91.24357712357924
+best_params=[23, 15]: best_score=91.11849085269361
+best_params=[23, 16]: best_score=91.03703725105268
+best_params=[23, 17]: best_score=91.0301027118869
+best_params=[23, 18]: best_score=91.0204597791622
+best_params=[24, 0]: best_score=87.96189215567482
+best_params=[24, 1]: best_score=87.27826702234793
+best_params=[24, 2]: best_score=86.98401496559906
+best_params=[24, 3]: best_score=86.85217504070147
+
+Best parameters: [24, 3]

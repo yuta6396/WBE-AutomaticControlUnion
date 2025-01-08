@@ -1,0 +1,8 @@
+
+
+Z=12
+best_params=[14, 0]: best_score=98.5064580689978
+best_params=[14, 1]: best_score=88.4077284573177
+best_params=[14, 2]: best_score=74.15474987800228
+
+Best parameters: [14, 2]

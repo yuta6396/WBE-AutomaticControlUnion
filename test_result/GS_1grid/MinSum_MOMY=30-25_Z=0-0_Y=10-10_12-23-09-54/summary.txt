@@ -1,0 +1,8 @@
+
+
+Z=0
+best_params=[10, 0]: best_score=104.19150385826896
+best_params=[10, 1]: best_score=102.60142047853526
+best_params=[10, 2]: best_score=101.95157562399645
+
+Best parameters: [10, 2]

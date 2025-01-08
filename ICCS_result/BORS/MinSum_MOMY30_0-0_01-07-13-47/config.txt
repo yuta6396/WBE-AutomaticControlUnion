@@ -1,0 +1,3 @@
+input_var =MOMY
+max_input =20
+Alg_vec =['BO', 'RS']
